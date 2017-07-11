@@ -1,0 +1,1994 @@
+<!doctype html>
+<html>
+<head>
+    <!--
+	  BT Openlink JavaScript API Test Harness
+	  https://www.bt.com/unifiedtrading
+	  Copyright (c) 2017 BT
+    -->
+    <title>BT Collaboration Server WebSocket Test Harness</title>
+    <!-- Disable IE compatibility mode -->
+    <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE"/>
+    <!-- Disable the SiteMesh decoration - see TestHarnessFrame.html -->
+    <meta name="decorator" content="none"/>
+    <meta charset="utf-8"/>
+    <link href="jquery-ui-1.11.4/jquery-ui.min.css" rel="stylesheet">
+    <link href="DataTables-1.10.10/css/jquery.dataTables.min.css" rel="stylesheet">
+    <script type="text/javascript" src="jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="jquery-ui-1.11.4/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="stanzaio.bundle.min.js"></script>
+    <script type="text/javascript" src="../src/jquery.openlink.js"></script>
+    <script type="text/javascript" src="DataTables-1.10.10/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="Select-1.1.0/js/dataTables.select.min.js"></script>
+    <script type="text/javascript" src="vkbeautify.0.99.00.beta.js"></script>
+    <script type="text/javascript" src="jquery.localtime-0.9.1.min.js"></script>
+    <script type="text/javascript" src="js.cookie.js"></script>
+    <style type="text/css">
+        /* Make the inputs all the same size */
+        input, select, textarea {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            width: 12em;
+        }
+
+        input.narrow {
+            width: 6em;
+        }
+
+        /* But allow buttons to auto-size */
+        input[type="button"] {
+            width: auto;
+        }
+
+        input.RequestAction {
+            width: 10em;
+        }
+
+        td.borderTop {
+            border-top: thin solid black;
+        }
+
+        td.borderBottom {
+            border-bottom: thin solid black;
+        }
+
+        td.borderLeft {
+            border-left: thin solid black;
+        }
+
+        td.borderRight {
+            border-right: thin solid black;
+        }
+
+        table.actions {
+            white-space: nowrap;
+            border-spacing: 0;
+        }
+
+        .actions td {
+            padding: 5px;
+        }
+
+        /*
+            Disable the date picker "Today" button; note the field is generated at run time, so IntelliJ thinks
+            it's never used - so suppress the warning
+         */
+        /*noinspection CssUnusedSymbol*/
+        #ui-datepicker-div button.ui-datepicker-current {
+            display: none;
+        }
+
+    </style>
+</head>
+<body onload='if (typeof window.WebSocket !== "function") {alert("This browser does not support WebSockets. Please upgrade (WebSockets require IE10 or above).\n" +"navigator.userAgent=" + navigator.userAgent);}'>
+<!-- Note; the onload function is the rather traditional type to catch very old browsers -->
+<table class="actions">
+    <tr>
+        <td colspan="3">
+            Logged in as: <span id="loggedInUser" style="font-weight: bold"></span>
+            <input type="button" id="logout" value="Logout"/>
+        </td>
+        <td>
+            <input type="button" id="send-message" value="Send Message"/>
+        </td>
+        <td colspan="4" style="text-align: right">
+            <label for="openlink">Openlink:</label>
+            <input type="text" id="openlink"/>
+            <label for="pubsub">Pub-sub:</label>
+            <input type="text" id="pubsub"/>
+            <button id="set-priority"><label for="priority">Set priority:</label></button>
+            <input type="number" id="priority" value="0" style="width: 4em;" max="127" min="-128"/>
+        </td>
+    </tr>
+    <tr>
+        <td class="borderLeft borderTop">
+            <input type="text" id="user"/>
+        </td>
+        <td class="borderTop">
+            <label for="user"><input type="button" id="get-profiles" value="get-profiles"/></label>
+        </td>
+        <td class="borderTop">
+            <input type="button" id="get-call-history" value="get-call-history"/>
+        </td>
+        <td class="borderTop"></td>
+        <td class="borderTop"></td>
+        <td class="borderTop borderLeft">
+            <select id="voice-messages" class="requiresGetFeatures">
+            </select>
+        </td>
+        <td class="borderTop">
+            <input id="supervisedVoiceDrop" type="checkbox" style="width: auto" class="requiresGetFeatures">
+            <label for="supervisedVoiceDrop" class="requiresGetFeatures">Supervised</label>
+            <input type="button" id="voice-drop" value="Drop" style="width: auto"/>
+        </td>
+        <td class="borderTop borderRight">
+            <label for="voice-messages">
+                <input type="button" id="manage-voice-messages" value="Manage" class="requiresGetFeatures"/>
+            </label>
+        </td>
+    </tr>
+    <tr>
+        <td class="borderLeft borderTop">
+            <select id="profile" class="requiresGetProfiles"></select>
+        </td>
+        <td class="borderTop">
+            <label for="profile"><input type="button" id="get-interests" value="get-interests"
+                                        class="requiresGetProfiles"/></label>
+        </td>
+        <td class="borderTop">
+            <input type="button" id="get-features" value="get-features" class="requiresGetProfiles"/>
+        </td>
+        <td class="borderTop">
+            <input type="button" id="query-features" value="query-features" class="requiresGetProfiles"/>
+        </td>
+        <td class="borderTop">
+            <input type="button" id="get-profile" value="get-profile" class="requiresGetProfiles"/>
+        </td>
+        <td class="borderLeft borderTop">
+            <input type="text" id="make-call-destination" placeholder="destination"/>
+        </td>
+        <td class="borderTop">
+            <input type="text" id="originator-property" placeholder="Orig property" class="narrow"/>
+            <input type="text" id="originator-value" placeholder="Orig value" class="narrow"/>
+        </td>
+        <td class="borderTop borderRight">
+            <input type="button" id="make-call" value="make-call"/>
+        </td>
+    </tr>
+    <tr>
+        <td class="borderTop borderLeft">
+            <select id="interest" class="requiresGetInterests"></select>&nbsp;<img id="copy-interest"
+                                                                                   src="images/picture_clipboard.png"
+                                                                                   alt="Copy to clipboard"
+                                                                                   title="Copy to clipboard" width="16"
+                                                                                   height="16"
+                                                                                   style="vertical-align: middle"/>
+            <span id="interest-id-to-copy"></span>
+        </td>
+        <td class="borderTop">
+            <label for="interest"><input type="button" id="subscribe" value="subscribe"
+                                         class="requiresGetInterests"/></label>
+        </td>
+        <td class="borderTop">
+            <input type="button" id="get-interest" value="get-interest" class="requiresGetInterests"/>
+        </td>
+        <td class="borderTop">
+            <input type="button" id="unsubscribe" value="unsubscribe" class="requiresGetInterests"/>
+        </td>
+        <td class="borderTop">
+        </td>
+        <td class="borderLeft">
+            <input type="text" id="make-intercom-call-user" placeholder="User JID"/>
+        </td>
+        <td class="">
+            <select id="make-intercom-call-group" class="requiresGetFeatures"></select>
+        </td>
+        <td class="borderRight">
+            <label for="make-intercom-call-group"><input type="button" id="make-intercom-call"
+                                                         value="make-intercom-call"/></label>
+        </td>
+    </tr>
+    <tr>
+        <td class="borderLeft borderTop borderBottom">
+            <select id="set-feature-id" class="requiresGetFeatures"></select>
+        </td>
+        <td class="borderTop borderBottom">
+            <input type="text" id="set-feature-value1" placeholder="value1"
+                   class="requiresGetFeatures narrow"/>
+        </td>
+        <td class="borderTop borderBottom">
+            <input type="text" id="set-feature-value2" placeholder="value2"
+                   class="requiresGetFeatures narrow"/>
+        </td>
+        <td class="borderTop borderBottom">
+            <input type="text" id="set-feature-value3" placeholder="value3"
+                   class="requiresGetFeatures narrow"/>
+        </td>
+        <td class="borderTop borderBottom">
+            <label for="set-feature-id"><input type="button" id="set-feature" value="set-feature"
+                                               class="requiresGetFeatures narrow"/></label>
+        </td>
+        <td class="borderLeft borderBottom">
+            <select id="call-feature-id" class="requiresGetFeatures narrow"></select>
+        </td>
+        <td class="borderBottom">
+            <input type="text" id="call-feature-value1" placeholder="value1"
+                   class="requiresGetFeatures narrow"/>
+            <input type="text" id="call-feature-value2" placeholder="value2"
+                   class="requiresGetFeatures narrow"/>
+        </td>
+        <td class="borderRight borderBottom">
+            <label for="call-feature-id"><input type="button" id="add-call-feature" value="Add Feature"
+                                                class="requiresGetFeatures narrow"/></label>
+            <input type="button" id="features" value="Features" class="requiresGetFeatures narrow"/>
+        </td>
+    </tr>
+</table>
+
+<div id="sendMessageDialog" title="Send any message">
+    <label for="messageToSend">Message to send</label><br/>
+    <textarea id="messageToSend" style="width:20em; height:10em;resize:both;"></textarea>
+</div>
+
+<div style="width:68em; resize:both;">
+    <table data-order='[[ 0, "desc" ]]' id="callTable" class="display" width="100%">
+        <thead>
+        <tr>
+            <th>Time</th>
+            <th>Id</th>
+            <th>State</th>
+            <th>Direction</th>
+            <th>Caller</th>
+            <th>Called</th>
+            <th>Duration</th>
+            <th data-orderable='false' style="white-space: nowrap;"></th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+Request action:
+Value 1: <input type="text" id="RequestActionValue1" placeholder="value1">
+Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
+
+<br/>
+<input type="button" class="RequestAction" value="AnswerCall"/>
+<input type="button" class="RequestAction" value="HoldCall"/>
+<input type="button" class="RequestAction" value="ConsultationCall"/>
+<input type="button" class="RequestAction" value="TransferCall"/>
+<input type="button" class="RequestAction" value="PublicCall"/>
+<input type="button" class="RequestAction" value="ConnectSpeaker"/>
+<input type="button" class="RequestAction" value="AddThirdParty"/>
+<input type="button" class="RequestAction" value="StartVoiceDrop"/>
+
+<br/>
+<input type="button" class="RequestAction" value="ClearConnection"/>
+<input type="button" class="RequestAction" value="RetrieveCall"/>
+<input type="button" class="RequestAction" value="ConferenceCall"/>
+<input type="button" class="RequestAction" value="SingleStepTransfer"/>
+<input type="button" class="RequestAction" value="PrivateCall"/>
+<input type="button" class="RequestAction" value="DisconnectSpeaker"/>
+<input type="button" class="RequestAction" value="RemoveThirdParty"/>
+<input type="button" class="RequestAction" value="StopVoiceDrop"/>
+
+<br/>
+<input type="button" class="RequestAction" value="ClearCall"/>
+<input type="button" class="RequestAction" value="JoinCall"/>
+<input type="button" class="RequestAction" value="ClearConference"/>
+<input type="button" class="RequestAction" value="IntercomTransfer"/>
+<input type="button" class="RequestAction" value="SendDigit"/>
+<input type="button" class="RequestAction" value="DeflectCall"/>
+<input type="button" class="RequestAction" value="SendDigits"/>
+<input type="button" class="RequestAction" value="MergeCall"/>
+
+<div style="margin-top:1em;">
+    <label for="log">Log:</label> <input type="button" id="clear-log" value="Clear"/><br/>
+    <textarea id="log" style="width:65em; height:10em;"></textarea>
+</div>
+
+<div id="loginDialog" title="Login">
+    <table>
+        <tr>
+            <td><label for="server">Server:</label></td>
+            <td><input id="server" type="text" size="20"/></td>
+        </tr>
+        <tr>
+            <td>Auth:</td>
+            <td>
+                <input type="radio" name="auth" value="supplied" checked="checked" id="auth-supplied"
+                       style="width:auto"><label for="auth-supplied">Supplied</label>
+                <input type="radio" name="auth" value="iwa" id="auth-iwa" style="width:auto"><label
+                    for="auth-iwa">IWA</label>
+                <input type="radio" name="auth" value="sm" id="auth-sm" style="width:auto"><label
+                    for="auth-sm">SM</label>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="otpPort">OTP Port:</label></td>
+            <td><input id="otpPort" type="text" size="20" disabled="disabled"/></td>
+        </tr>
+        <tr>
+            <td><label for="username">Username:</label></td>
+            <td><input id="username" type="text" size="10"/></td>
+        </tr>
+        <tr>
+            <td><label for="password">Password:</label></td>
+            <td><input id="password" type="password" size="10"/></td>
+        </tr>
+        <tr>
+            <td><label for="resource">Resource:</label></td>
+            <td><input id="resource" type="text" size="10"/></td>
+        </tr>
+    </table>
+</div>
+
+<div id="pleaseWaitDialog" title="Please wait ...">
+    Please wait a moment ...
+    <div style="text-align: center; margin-bottom: 40px;"><img src="images/ajax-loader-white-on-black.gif"
+                                                               style="width:32px; height:32px"></div>
+</div>
+
+<div id="alertThenLogin">
+    <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+        <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+
+        <div id="alertThenLoginText"></div>
+    </div>
+</div>
+
+<div id="alertDialog">
+    <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+        <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+
+        <div id="alertDialogText"></div>
+    </div>
+</div>
+
+<div id="callDetailsDialog" title="Call details">
+    Details for <span id="callDetailsDialogDirection"></span> call from <span id="callDetailsDialogCaller"></span> to
+    <span id="callDetailsDialogCalled"></span> with id<br/><span id="callDetailsDialogCallId"></span>
+    <table data-order='[[ 0, "desc" ]]' id="callDetailsTable" class="display" width="100%">
+        <thead>
+        <tr>
+            <th>Event&nbsp;time</th>
+            <th>Changed</th>
+            <th>State</th>
+            <th>Duration</th>
+            <th data-orderable='false'></th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+<div id="xmlDialog" title="XML details">
+    <pre id="xml"></pre>
+</div>
+
+<div id="getCallHistoryDialog" title="Get Call History">
+    <table>
+        <tbody>
+        <tr>
+            <td><label for="get-call-history-user">User:</label></td>
+            <td><input type="text" id="get-call-history-user"/></td>
+        </tr>
+        <tr>
+            <td><label for="get-call-history-from-caller">From caller:</label></td>
+            <td><input type="text" id="get-call-history-from-caller"/></td>
+        </tr>
+        <tr>
+            <td><label for="get-call-history-to-destination">To destination:</label></td>
+            <td><input type="text" id="get-call-history-to-destination"/></td>
+        </tr>
+        <tr>
+            <td><label for="get-call-history-call-type">Type:</label></td>
+            <td><select id="get-call-history-call-type">
+                <option value="all">All</option>
+                <option value="missed">Missed</option>
+                <option value="inbound">Inbound</option>
+                <option value="outbound">Outbound</option>
+            </select>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="get-call-history-from-date">From:</label></td>
+            <td><input type="text" id="get-call-history-from-date" class="call-history-date" readonly/></td>
+        </tr>
+        <tr>
+            <td><label for="get-call-history-until-date">Until:</label></td>
+            <td><input type="text" id="get-call-history-until-date" class="call-history-date" readonly/></td>
+        </tr>
+        <tr>
+            <td><label for="get-call-history-from-record">Starting at record:</label></td>
+            <td><input type="text" id="get-call-history-from-record"/></td>
+        </tr>
+        <tr>
+            <td><label for="get-call-history-record-count">Number of records:</label></td>
+            <td><input type="text" id="get-call-history-record-count"/></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div id="getCallHistoryResultDialog" title="Get Call History">
+    Showing records <span id="callHistoryStart"></span> to <span id="callHistoryEnd"></span> (<span
+        id="callHistoryCount"></span> records shown out of <span
+        id="callHistoryTotal"></span> total).
+    <table data-order='[[ 0, "desc" ]]' id="callHistoryTable" class="display" width="100%">
+        <thead>
+        <tr>
+            <th>Time</th>
+            <th>State</th>
+            <th>Direction</th>
+            <th>Caller</th>
+            <th>Called</th>
+            <th>Duration</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+<div id="callFeaturesDialog" title="Call features">
+    Features used when making calls / intercom calls.
+    <table data-order='[[ 0, "asc" ]]' id="callFeaturesTable" class="display" width="100%">
+        <thead>
+        <tr>
+            <th>Feature id</th>
+            <th>value1</th>
+            <th>value2</th>
+            <th data-orderable='false'></th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+<div id="manageVoiceMessages" title="Manage voice messages">
+    The following voice messages are available:
+    <table data-order='[[ 0, "asc" ]]' id="voiceMessageTable" class="display" width="100%">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Label</th>
+            <th>Length</th>
+            <th>Created</th>
+            <th data-orderable='false' style="text-align: left">
+                <input type="checkbox" id="vm-all-checked" style="width: auto">
+                <label for="vm-all-checked"></label>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <input type="button" style="width:auto" id="mvm-Record" value="Record"/>
+    <input type="button" style="width:auto" id="mvm-Playback" value="Playback"/>
+    <input type="button" style="width:auto" id="mvm-Edit" value="Edit"/>
+    <input type="button" style="width:auto" id="mvm-Query" value="Query"/>
+    <input type="button" style="width:auto" id="mvm-Delete" value="Delete"/>
+</div>
+
+<div id="mvm-label-dialog" title="Voice message label">
+    <label for="voice-message-label">Please enter the label for the voice message:</label>
+    <br/><br/><input type="text" id="voice-message-label"/>
+</div>
+
+<script type="text/javascript">
+
+    var serverFieldSelector = $("#server");
+    var otpPortFieldSelector = $("#otpPort");
+    var resourceFieldSelector = $("#resource");
+    var alertDialogSelector = $("#alertDialog");
+    var alertDialogTextSelector = $("#alertDialogText");
+    var loginDialogSelector = $("#loginDialog");
+    var voiceMessageSelector = $("#voice-messages");
+
+    var alertDialog = function (title, message) {
+        alertDialogSelector.dialog('option', 'title', title);
+        alertDialogTextSelector.html(message);
+        alertDialogSelector.dialog("open");
+    };
+
+    // Replace the plugin functions with custom ones
+    $.openlink.getOpenlinkJid = function () {
+        return $("#openlink").val();
+    };
+
+    $.openlink.getPubsubJid = function () {
+        return $("#pubsub").val();
+    };
+
+    $('input[name=auth]').on('change', function () {
+        if ($(this).val() === 'supplied') {
+            $('#username,#password').prop('disabled', false);
+            $('#otpPort').prop('disabled', true);
+        } else {
+            $('#username,#password').prop('disabled', true);
+            $('#otpPort').prop('disabled', false);
+        }
+    });
+
+    var savedDetails = Cookies.getJSON('TestHarness');
+    if (typeof savedDetails !== "undefined") {
+        if ('server' in savedDetails) {
+            serverFieldSelector.val(savedDetails.server);
+        }
+        if ('otpPort' in savedDetails) {
+            otpPortFieldSelector.val(savedDetails.otpPort);
+        }
+        if ('username' in savedDetails) {
+            $("#username").val(savedDetails.username);
+        }
+        if ('password' in savedDetails) {
+            $("#password").val(savedDetails.password);
+        }
+        if ('auth' in savedDetails) {
+            $("#auth-" + savedDetails.auth).prop("checked", true).change();
+        }
+        if ('resource' in savedDetails) {
+            resourceFieldSelector.val(savedDetails.resource);
+        }
+    }
+
+    var getParameterByName = function (name, url) {
+        if (!url) {
+            url = window.location.href;
+        }
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    };
+
+    if (serverFieldSelector.val() === '') {
+        var host = getParameterByName('host');
+        if (typeof host !== 'string') {
+            if (window.location.hostname) {
+                host = window.location.hostname;
+            } else {
+                host = 'localhost';
+            }
+        }
+        var wsPort = getParameterByName('wsPort');
+        if (typeof wsPort !== 'string') {
+            wsPort = '7070';
+        }
+        serverFieldSelector.val("ws://" + host + ":" + wsPort);
+    }
+
+    if (otpPortFieldSelector.val() === '') {
+        var otpPort = getParameterByName('otpPort');
+        if (typeof otpPort !== 'string') {
+            otpPort = '7070';
+        }
+        otpPortFieldSelector.val(otpPort);
+    }
+
+    if (resourceFieldSelector.val() === '') {
+        resourceFieldSelector.val("TestHarness");
+    }
+
+    var login = function () {
+
+        var server = serverFieldSelector.val();
+        if (!server.startsWith("ws://") && !server.startsWith("wss://")) {
+            alertDialogTextSelector.html('The only supported protocols are ws:// (for Openfire 3.6.4) or ws:// and wss:// (for Openfire 4)');
+            alertDialogSelector.dialog('option', 'title', 'Invalid protocol');
+            alertDialogSelector.dialog("open");
+            return;
+        }
+
+        var authType = $('input[name=auth]:checked').val();
+
+        loginDialogSelector.dialog("close");
+        $("#pleaseWaitDialog").dialog("open");
+
+        if (authType === 'supplied') {
+            connect($("#username").val(), $("#password").val());
+        } else {
+            var otpPort = otpPortFieldSelector.val();
+            getOTPCredentials(otpPort, authType);
+        }
+
+    };
+
+    var origin;
+    if (window.location.hostname) {
+        origin = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port;
+    } else {
+        origin = "file://";
+    }
+
+    var getOTPCredentials = function (otpPort, otpType) {
+
+        if (otpPort.length === 0) {
+            alertDialogTextSelector.html('Please specify the OTP port');
+            alertDialogSelector.dialog('option', 'title', 'Invalid server details');
+            alertDialogSelector.dialog("open");
+            return;
+        }
+        // First, get the OTP address - switch out ws(s) with http(s)
+        var urlParser = document.createElement('a');
+        urlParser.href = serverFieldSelector.val();
+        var normalisedServer = (urlParser.protocol === 'wss:' ? 'https:' : 'http:') + "//" + urlParser.host.split(":")[0];
+        // And generate a unique (to avoid caching) URL to fetch an OTP
+        var otpAddress = normalisedServer + ":" + otpPort + "/otp/" + otpType + "?" + new Date().getTime();
+
+        var xmlHttpRequest = new XMLHttpRequest();
+        xmlHttpRequest.open("GET", otpAddress);
+        xmlHttpRequest.onreadystatechange = function () {
+            if (xmlHttpRequest.readyState === XMLHttpRequest.DONE) {
+                var failureReason;
+                switch (xmlHttpRequest.status) {
+                    case 200:
+                        var credentials = xmlHttpRequest.responseText.split(" ");
+                        connect(credentials[0], credentials[1]);
+                        return;
+                    case 403:
+                        failureReason = "<br>This status code can indicate that the OTP plugin is not enabled";
+                        break;
+                    case 404:
+                        failureReason = "<br>This status code can indicate that the OTP plugin is not installed";
+                        break;
+                    case 500:
+                        failureReason = "<br>This status code can indicate a fault with the OTP plugin";
+                        break;
+                    case 0:
+                        failureReason = "<br>This status code can indicate that the OTP plugin is not correctly configured with '" + origin + "' as an allowed origin";
+                        break;
+                    default:
+                        failureReason = "";
+                        break;
+                }
+                onFailed("Unable to retrieve a one-time password (status code " + xmlHttpRequest.status + ")" + failureReason);
+            }
+        };
+        xmlHttpRequest.withCredentials = true;
+        xmlHttpRequest.send();
+
+    };
+
+    var connect = function (username, password) {
+
+        var settings = {
+            username: username,
+            password: password,
+            resource: resourceFieldSelector.val(),
+            opened: onOpened,
+            failed: onFailed,
+            closed: onClosed,
+            message: onMessage
+        };
+
+        $.openlink.connect(serverFieldSelector.val(), settings);
+    };
+
+    loginDialogSelector.dialog({
+        autoOpen: true,
+        modal: true,
+        closeOnEscape: false,
+        resizable: false,
+        width: 'auto',
+        height: 'auto',
+        open: function () {
+            $(".ui-dialog-titlebar-close", this.parentNode).hide();
+        },
+        buttons: [{
+            text: "Login",
+            click: login
+        }]
+    }).keypress(function (e) {
+        if (e.keyCode === $.ui.keyCode.ENTER) {
+            login();
+        }
+    });
+
+
+    $("#pleaseWaitDialog").dialog({
+        autoOpen: false,
+        modal: true,
+        closeOnEscape: false,
+        resizable: false,
+        width: 'auto',
+        height: 'auto',
+        open: function () {
+            $(".ui-dialog-titlebar-close", this.parentNode).hide();
+        }
+    });
+
+    var timeoutHandler = function () {
+        alertDialogTextSelector.html('Timeout waiting for response from server');
+        alertDialogSelector.dialog('option', 'title', 'Timeout');
+        alertDialogSelector.dialog("open");
+    };
+
+    $('.RequestAction').click(function () {
+        var callEvents = calls[selectedCallId];
+        if (typeof callEvents === 'object') {
+            var lastEvent = callEvents[callEvents.length - 1];
+            var requestAction = new $.openlink.RequestActionRequest(lastEvent.interest, $(this).val(), selectedCallId);
+            var value1 = $.trim($('#RequestActionValue1').val());
+            if (value1 !== '') {
+                requestAction = requestAction.withValue1(value1);
+            }
+            var value2 = $.trim($('#RequestActionValue2').val());
+            if (value2 !== '') {
+                requestAction = requestAction.withValue2(value2);
+            }
+            requestAction = requestAction.setSupervised('StartVoiceDrop' === $(this).val() && $('#supervisedVoiceDrop').is(':checked'));
+            appendSendToLog(requestAction.toXml());
+            $.openlink.send(
+                requestAction,
+                function (response) {
+                    checkForErrorOrUnexpectedResponse(response, "request action");
+                },
+                timeoutHandler);
+        }
+    });
+
+    $('#voice-drop').click(function () {
+        var callEvents = calls[selectedCallId];
+        if (typeof callEvents !== 'object') {
+            alertDialog("No call selected", "Please select a call to drop a voice message to");
+            return;
+        }
+        var lastEvent = callEvents[callEvents.length - 1];
+        var messageId = voiceMessageSelector.val();
+        if (voiceMessageSelector.prop("disabled") === true || messageId === "") {
+            alertDialog("No message selected", "Please select a voice message to drop");
+            return;
+        }
+        // Step 1; get an extension number
+        var mvm = new $.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Playback').withFeature(messageId);
+        appendSendToLog(mvm.toXml());
+        $.openlink.send(
+            mvm,
+            function (response) {
+                checkForErrorOrUnexpectedResponse(response, "manage voice message playback");
+                if (response.isResult()) {
+                    var requestAction = new $.openlink.RequestActionRequest(lastEvent.interest, "StartVoiceDrop", selectedCallId)
+                        .setSupervised($('#supervisedVoiceDrop').is(':checked'))
+                        .withValue1(messageId)
+                        .withValue2(response.getFeatures()[0].extension);
+                    appendSendToLog(requestAction.toXml());
+                    $.openlink.send(
+                        requestAction,
+                        function (response) {
+                            checkForErrorOrUnexpectedResponse(response, "voice drop");
+                        },
+                        timeoutHandler);
+                }
+            },
+            timeoutHandler);
+    });
+
+    var alertThenLoginDialog = $("#alertThenLogin").dialog({
+        autoOpen: false,
+        modal: true,
+        resizable: false,
+        width: '20em',
+        height: 'auto',
+        closeOnEscape: false,
+        buttons: [{
+            text: "OK",
+            click: function () {
+                $(this).dialog("close");
+                loginDialogSelector.dialog("open");
+            }
+        }],
+        open: function () {
+            $(".ui-dialog-titlebar-close", this.parentNode).hide();
+        }
+    });
+
+    alertDialogSelector.dialog({
+        autoOpen: false,
+        modal: true,
+        width: '20em',
+        height: 'auto',
+        buttons: [{
+            text: "OK",
+            click: function () {
+                $(this).dialog("close");
+            }
+        }]
+    });
+
+    $("#callDetailsDialog").dialog({
+        autoOpen: false,
+        modal: true,
+        width: 'auto',
+        height: 'auto',
+        dialogClass: 'callDetails',
+        buttons: [{
+            text: "OK",
+            click: function () {
+                $(this).dialog("close");
+            }
+        }],
+        open: function () {
+            // Give the first ("OK") button focus;
+            $(this).parent().find('button:nth-child(1)').focus();
+        }
+    });
+
+    $("#xmlDialog").dialog({
+        autoOpen: false,
+        modal: true,
+        width: 'auto',
+        height: 'auto',
+        buttons: [{
+            text: "OK",
+            click: function () {
+                $(this).dialog("close");
+            }
+        }]
+    });
+
+    $("#callFeaturesDialog").dialog({
+        autoOpen: false,
+        modal: true,
+        width: 'auto',
+        height: 'auto',
+        buttons: [{
+            text: "OK",
+            click: function () {
+                $(this).dialog("close");
+            }
+        }],
+        open: function () {
+            // Give the first ("OK") button focus;
+            $(this).parent().find('button:nth-child(1)').focus();
+        }
+    });
+
+    var disableRequestActionButtons = function () {
+        $("input[type='button'].RequestAction").removeClass('ui-state-highlight').prop('disabled', true);
+        $("#voice-drop").prop('disabled', true);
+    };
+
+    var updateRequestActionButtons = function (callId) {
+        if (callId === selectedCallId) {
+            $("input[type='button'].RequestAction").removeClass('ui-state-highlight').prop('disabled', false);
+            var callEvents = calls[selectedCallId];
+            if (typeof callEvents === 'object') {
+                var lastEvent = callEvents[callEvents.length - 1];
+                var actions = lastEvent.actions;
+                var actionsLength = actions.length;
+                // Highlight those specifically enabled
+                for (var i = 0; i < actionsLength; i++) {
+                    $("input[type='button'][value='" + actions[i] + "'].RequestAction").addClass('ui-state-highlight');
+                }
+                if (actions.indexOf("StartVoiceDrop") > -1) {
+                    $("#voice-drop").prop('disabled', false);
+                }
+            }
+        }
+    };
+
+    disableRequestActionButtons();
+
+    var selectedCallId = null;
+    var callTable = $('#callTable').DataTable({
+        scrollY: 200,
+        scrollX: true,
+        fnCreatedRow: function (nRow, aData) {
+            // When a row is added, make the HTML id of that row the call-id
+            $(nRow).attr('id', aData[1]);
+        },
+        searching: false,
+        paging: false,
+        info: false,
+        columnDefs: [
+            {className: "dt-right", targets: [6]}
+        ],
+        select: 'single'
+    }).on('select', function (e, dt, type, indexes) {
+        // de-highlight all request action buttons
+        selectedCallId = callTable.rows(indexes).data()[0][1];
+        updateRequestActionButtons(selectedCallId);
+    }).on('deselect', function () {
+        selectedCallId = null;
+        updateRequestActionButtons(selectedCallId);
+        disableRequestActionButtons();
+    });
+    $('.dataTables_scrollBody').css('overflow-y', 'scroll');
+
+    var onOpened = function (response) {
+        console.log("Connected to server", response);
+        Cookies.set('TestHarness', {
+            server: serverFieldSelector.val(),
+            otpPort: otpPortFieldSelector.val(),
+            username: $("#username").val(),
+            password: $("#password").val(),
+            resource: resourceFieldSelector.val(),
+            auth: $('input[name=auth]:checked').val()
+        });
+        //noinspection JSUnresolvedVariable
+        var loggedInUser = response.loggedInUser;
+        $.openlink.log(loggedInUser + " logged in via the test harness");
+        var user = loggedInUser.substring(0, loggedInUser.indexOf('/'));
+        $("#openlink").val(response.openlink);
+        //noinspection JSUnresolvedVariable
+        $("#pubsub").val(response.pubsub);
+        $("#loggedInUser").text(loggedInUser);
+        $("#user").val(user);
+        $("#get-call-history-user").val(user);
+        $("#pleaseWaitDialog").dialog("close");
+    };
+
+    var onFailed = function (reason) {
+        console.log("Could not connect to server:", reason);
+        var message = "<strong>Login failed.</strong> The following reason was given: <div style='text-align:center'>" + reason + "</div>";
+        alertThenLoginDialog.dialog("open");
+        alertThenLoginDialog.dialog('option', 'title', 'Login failed');
+        $("#alertThenLoginText").html(message);
+        $("#pleaseWaitDialog").dialog("close");
+    };
+
+    var onClosed = function (expected) {
+        console.log("Disconnected from server - expected:", expected);
+        initialisePage();
+        if (!expected) {
+            $("#alertThenLoginText").html('The connection to BT Collaboration Server has been lost.');
+            alertThenLoginDialog.dialog('option', 'title', 'Connection lost');
+            alertThenLoginDialog.dialog("open");
+        } else {
+            loginDialogSelector.dialog("open");
+        }
+    };
+
+    var jQuerySelectorEscape = function (expression) {
+        return expression.replace(/[!"#$%&'()*+,.\/:;<=>?@\[\\\]^`{|}~]/g, '\\$&');
+    };
+
+    var undefinedToEmpty = function (param) {
+        if (typeof param === 'undefined') {
+            return '';
+        } else {
+            return param;
+        }
+    };
+
+    var calls = {};
+    var getCallRow = function (callDetails, message) {
+
+        callDetails.eventReceivedDate = new Date();
+        callDetails.eventXml = message.toXml();
+        var callId = callDetails.id;
+        var callRecords = calls[callId];
+        if (typeof callRecords === 'undefined') {
+            calls[callId] = [callDetails];
+        } else {
+            callRecords.push(callDetails);
+        }
+        // Reset the start time (the time the first event was seen) to the first event
+        var firstEventReceivedDate = calls[callId][0].eventReceivedDate;
+        return [
+            $.localtime.toLocalTime(firstEventReceivedDate, 'HH:mm:ss.SSS'),
+            undefinedToEmpty(callId),
+            undefinedToEmpty(callDetails.state),
+            undefinedToEmpty(callDetails.direction),
+            undefinedToEmpty(callDetails.callerNumber),
+            undefinedToEmpty(callDetails.calledNumber),
+            undefinedToEmpty(callDetails.duration),
+            '<input type="button" style="width:2em" value="..." onclick="historyRow(this)"/> <input type="button" style="width:2em" value="X" onclick="deleteRow(this)"/>'
+        ];
+    };
+
+    var onMessage = function (message) {
+        console.log("onMessage(): message", message);
+        appendReceiveToLog(message.toXml());
+        var stanzaType = message.getStanzaType();
+        if (stanzaType !== 'message' && stanzaType !== 'presence' && message.constructor.name !== 'IqBindResult') {
+            alertDialogTextSelector.text('Unexpected stanza type. Stanza type = "' + stanzaType + '"');
+            alertDialogSelector.dialog('option', 'title', 'Unexpected stanza type');
+            alertDialogSelector.dialog("open");
+        }
+        if (stanzaType === 'message' && typeof message.getCalls === 'function') {
+            var calls = message.getCalls();
+            var callCount = calls.length;
+            for (var i = 0; i < callCount; i++) {
+                var callDetails = calls[i];
+                var callRow = getCallRow(callDetails, message);
+                var callId = callDetails.id;
+                updateRequestActionButtons(callId);
+                var row = callTable.row('#' + jQuerySelectorEscape(callId));
+                if (row.length === 0) {
+                    callTable.row.add(callRow);
+                } else {
+                    row.data(callRow);
+                }
+            }
+            //noinspection JSUnresolvedFunction
+            callTable.columns.adjust().draw();
+        }
+    };
+
+    var deleteRow = function (button) {
+        var callId = button.parentElement.parentElement.id;
+        var row = callTable.row('#' + jQuerySelectorEscape(callId));
+        row.remove().draw();
+        delete calls[callId];
+        if (callId === selectedCallId) {
+            disableRequestActionButtons();
+        }
+    };
+
+    var callDetailsTable = $('#callDetailsTable');
+    callDetailsTable.DataTable({
+        scrollX: true,
+        searching: false,
+        paging: false,
+        info: false,
+        columnDefs: [
+            {className: "dt-right", targets: [3]}
+        ]
+    });
+    var historyRow = function (button) {
+        var callId = button.parentElement.parentElement.id;
+        var callRecords = calls[callId];
+        var rowCount = callRecords.length;
+        $("#callDetailsDialogCallId").text(callId);
+        $("#callDetailsDialogDirection").text(callRecords[0].direction);
+        $("#callDetailsDialogCaller").text(callRecords[0].callerNumber);
+        $("#callDetailsDialogCalled").text(callRecords[0].calledNumber);
+        callDetailsTable.DataTable().clear();
+        for (var i = 0; i < rowCount; i++) {
+            var callRecord = callRecords[i];
+            $('#callDetailsTable').DataTable().row.add([
+                $.localtime.toLocalTime(callRecord.eventReceivedDate, 'HH:mm:ss.SSS'),
+                undefinedToEmpty(callRecord.changed),
+                undefinedToEmpty(callRecord.state),
+                undefinedToEmpty(callRecord.duration),
+                '<input type="button" value="XML" onclick="showXml(\'' + callId + '\', ' + i + ');"/>'
+            ]);
+        }
+        callDetailsTable.DataTable().draw();
+        // Nasty hack to make the table visible; I can't get the style definition right :(
+        callDetailsTable.find('td').css('background-color', 'black');
+        $("#callDetailsDialog").dialog("open");
+        // Trigger a resize event so the headers are re-drawn
+        callDetailsTable.resize();
+    };
+
+    var showXml = function (callId, eventIndex) {
+        var callRecords = calls[callId];
+        var callRecord = callRecords[eventIndex];
+        var xml = callRecord.eventXml;
+        $("#xml").text(vkbeautify.xml(xml, 2));
+        $("#xmlDialog").dialog("open");
+    };
+
+    var appendToLog = function (message) {
+        var log = $("#log");
+        log.val(log.val() + vkbeautify.xml(message, 2) + "\n");
+        log.scrollTop(log[0].scrollHeight - log.height());
+    };
+
+    var appendSendToLog = function (xml) {
+        appendToLog("\n<!-- Sent at " + new Date() + " -->");
+        appendToLog(xml);
+    };
+
+    var appendReceiveToLog = function (xml) {
+        appendToLog("\n<!-- Received at " + new Date() + " -->");
+        appendToLog(xml);
+    };
+
+    var logoutCode = 1000;
+    var logoutMessage = "User logged out";
+
+    $("#logout").click(function () {
+        $.openlink.disconnect(logoutCode, logoutMessage);
+    });
+
+    var callFeatures;
+    $("#make-call").click(function () {
+        var makeCallRequest = new $.openlink.MakeCallRequest()
+            .onInterest($("#interest").val())
+            .forUser($.trim($("#user").val()));
+        var destination = $.trim($("#make-call-destination").val());
+        if (destination !== '') {
+            makeCallRequest = makeCallRequest.toDestination(destination);
+        }
+        Object.keys(callFeatures).forEach(function (featureId) {
+            var feature = callFeatures[featureId];
+            makeCallRequest = makeCallRequest.withFeature(featureId, feature.value1, feature.value2);
+        });
+        var origProp = $.trim($("#originator-property").val());
+        if (origProp !== '') {
+            var origValue = $.trim($("#originator-value").val());
+            if (origValue === '') {
+                makeCallRequest = makeCallRequest.withOriginatorReference(origProp);
+            } else {
+                makeCallRequest = makeCallRequest.withOriginatorReference(origProp, origValue);
+            }
+        }
+        console.log("Sending stanza", makeCallRequest);
+        appendSendToLog(makeCallRequest.toXml());
+        $.openlink.send(
+            makeCallRequest,
+            function (response) {
+                checkForErrorOrUnexpectedResponse(response, "make-call stanza");
+            },
+            timeoutHandler);
+    });
+
+    $("#set-feature").click(function () {
+        var setFeatureRequest = new $.openlink.SetFeatureRequest($("#profile").val(), $.trim($("#set-feature-id").val()));
+        var value1 = $.trim($("#set-feature-value1").val());
+        if (value1 !== '') {
+            setFeatureRequest = setFeatureRequest.withValue1(value1);
+        }
+        var value2 = $.trim($("#set-feature-value2").val());
+        if (value2 !== '') {
+            setFeatureRequest = setFeatureRequest.withValue2(value2);
+        }
+        var value3 = $.trim($("#set-feature-value3").val());
+        if (value3 !== '') {
+            setFeatureRequest = setFeatureRequest.withValue3(value3);
+        }
+        console.log("Sending stanza", setFeatureRequest);
+        appendSendToLog(setFeatureRequest.toXml());
+        $.openlink.send(
+            setFeatureRequest,
+            function (response) {
+                checkForErrorOrUnexpectedResponse(response, "set feature");
+            },
+            timeoutHandler);
+    });
+
+    $("#clear-log").click(function () {
+        $("#log").val("");
+    });
+
+    var getNotesText = function (response) {
+        var noteMessage = "";
+        if (typeof response.getNotes === 'function') {
+            var notes = response.getNotes();
+            var noteCount = notes.length;
+            for (var i = 0; i < noteCount; i++) {
+                noteMessage += "<br/>" + notes[i].text;
+            }
+        }
+        return noteMessage;
+    };
+
+    var checkForErrorOrUnexpectedResponse = function (response, requestType) {
+        console.log(requestType + " response:", response);
+        appendReceiveToLog(response.toXml());
+        switch (response.getType()) {
+            case 'result':
+                var noteMessage = getNotesText(response);
+                if (noteMessage !== "") {
+                    alertDialogTextSelector.html('The response included the following notes: ' + noteMessage);
+                    alertDialogSelector.dialog('option', 'title', 'Warning');
+                    alertDialogSelector.dialog("open");
+                }
+                break;
+            case 'error':
+                noteMessage = getNotesText(response);
+                if (noteMessage !== "") {
+                    noteMessage = "<br/>The error also included the following notes:" + noteMessage;
+                }
+                alertDialogTextSelector.html('Unable to ' + requestType + ': ' + response.getXmppErrorText() + noteMessage);
+                alertDialogSelector.dialog('option', 'title', 'Error: unable to ' + requestType);
+                alertDialogSelector.dialog("open");
+                break;
+            default:
+                alertDialogTextSelector.text('Unexpected response type: ' + response.getType());
+                alertDialogSelector.dialog('option', 'title', 'Unexpected response type');
+                alertDialogSelector.dialog("open");
+                break;
+        }
+    };
+
+    $("#get-profiles").click(function () {
+        var getProfilesRequest = new $.openlink.GetProfilesRequest().forUser($.trim($("#user").val()));
+        appendSendToLog(getProfilesRequest.toXml());
+        $.openlink.send(
+            getProfilesRequest,
+            function (response) {
+                checkForErrorOrUnexpectedResponse(response, 'retrieve profiles');
+                if ('result' === response.getType()) {
+                    $(".requiresGetProfiles").prop('disabled', false);
+                    var profileElement = $("#profile");
+                    profileElement.html($("<option/>", {
+                        value: "",
+                        text: ""
+                    }));
+                    var profileCount = response.profiles.length;
+                    for (var i = 0; i < profileCount; i++) {
+                        var profile = response.profiles[i];
+                        if (!profile.isVMS) {
+                            var optionAttributes = {
+                                value: profile.id,
+                                text: profile.id
+                            };
+                            if (profile.default && typeof profile.site !== "undefined" && profile.site.default) {
+                                optionAttributes.selected = 'selected';
+                            }
+                            profileElement.append($("<option/>", optionAttributes));
+                        }
+                    }
+                }
+            },
+            timeoutHandler);
+    });
+
+    $("#get-interests").click(function () {
+        var getInterestsRequest = new $.openlink.GetInterestsRequest($("#profile").val());
+        appendSendToLog(getInterestsRequest.toXml());
+        $.openlink.send(
+            getInterestsRequest,
+            function (response) {
+                checkForErrorOrUnexpectedResponse(response, 'retrieve interests');
+                if ('result' === response.getType()) {
+                    $(".requiresGetInterests").prop('disabled', false);
+                    var interestElement = $("#interest");
+                    interestElement.html($("<option/>", {
+                        value: "",
+                        text: ""
+                    }));
+                    var interestCount = response.interests.length;
+                    var defaultSelected = false;
+                    for (var i = 0; i < interestCount; i++) {
+                        var interest = response.interests[i];
+                        var optionAttributes = {
+                            value: interest.id,
+                            text: interest.id
+                        };
+                        if (interest.default && !defaultSelected) {
+                            optionAttributes.selected = 'selected';
+                            defaultSelected = true;
+                        }
+                        interestElement.append($("<option/>", optionAttributes));
+                    }
+                }
+            },
+            timeoutHandler);
+    });
+
+    $("#get-profile").click(function () {
+        var getProfileRequest = new $.openlink.GetProfileRequest($("#profile").val());
+        appendSendToLog(getProfileRequest.toXml());
+        $.openlink.send(
+            getProfileRequest,
+            function (response) {
+                checkForErrorOrUnexpectedResponse(response, "retrieve profile");
+            },
+            timeoutHandler);
+    });
+
+    $("#get-interest").click(function () {
+        var getInterestRequest = new $.openlink.GetInterestRequest($("#interest").val());
+        appendSendToLog(getInterestRequest.toXml());
+        $.openlink.send(
+            getInterestRequest,
+            function (response) {
+                checkForErrorOrUnexpectedResponse(response, "retrieve interest");
+            },
+            timeoutHandler);
+    });
+
+    $("#get-features").click(function () {
+        var getFeaturesRequest = new $.openlink.GetFeaturesRequest($("#profile").val());
+        appendSendToLog(getFeaturesRequest.toXml());
+        $.openlink.send(
+            getFeaturesRequest,
+            function (response) {
+                checkForErrorOrUnexpectedResponse(response, "get features");
+                if ('result' === response.getType()) {
+                    $(".requiresGetFeatures").prop('disabled', false);
+                    var features = response.getFeatures();
+                    var groupIntercomsElement = $("#make-intercom-call-group");
+                    var setFeatureIdElement = $("#set-feature-id");
+                    var makeCallFeatureIdElement = $("#call-feature-id");
+                    groupIntercomsElement.html($("<option/>", {
+                        value: "",
+                        text: "",
+                        selected: 'selected'
+                    }));
+                    setFeatureIdElement.html($("<option/>", {
+                        value: "",
+                        text: "",
+                        selected: 'selected'
+                    }));
+                    makeCallFeatureIdElement.html($("<option/>", {
+                        value: "",
+                        text: "",
+                        selected: 'selected'
+                    }));
+                    var featuresNotFound = [];
+                    updateVoiceMessages(features);
+                    for (var i = 0; i < features.length; i++) {
+                        var feature = features[i];
+                        var featureFound = false;
+                        if (feature.isGroupIntercom) {
+                            groupIntercomsElement.append($("<option/>", {value: feature.id, text: feature.label}));
+                            featureFound = true;
+                        }
+                        if (feature.isSettable) {
+                            var text;
+                            if ('DeviceKeys' === feature.type) {
+                                text = feature.label + " (" + feature.id + ")";
+                            } else {
+                                text = feature.label;
+                            }
+                            setFeatureIdElement.append($("<option/>", {value: feature.id, text: text}));
+                            featureFound = true;
+                        }
+                        if (feature.isCallable) {
+                            makeCallFeatureIdElement.append($("<option/>", {value: feature.id, text: feature.label}));
+                            featureFound = true;
+                        }
+                        if (feature.isVoiceMessage) {
+                            featureFound = true;
+                        }
+                        // Following features are FYI only
+                        if ('VoiceRecorder' === feature.type || 'VoiceBridge' === feature.type || 'MediaStream' === feature.type) {
+                            featureFound = true;
+                        }
+                        if (!featureFound) {
+                            featuresNotFound.push(feature.type);
+                        }
+                    }
+                    if (featuresNotFound.length > 0) {
+                        alertDialogTextSelector.html('The following features were not recognised:<ul><li>' + featuresNotFound.join('</li><li>') + "</li></ul>");
+                        alertDialogSelector.dialog('option', 'title', 'Unrecognised features');
+                        alertDialogSelector.dialog("open");
+                    }
+                }
+            },
+            timeoutHandler);
+    });
+
+    $("#query-features").click(function () {
+        var getFeaturesRequest = new $.openlink.QueryFeaturesRequest($("#profile").val());
+        appendSendToLog(getFeaturesRequest.toXml());
+        $.openlink.send(
+            getFeaturesRequest,
+            function (response) {
+                checkForErrorOrUnexpectedResponse(response, "query features");
+            },
+            timeoutHandler);
+    });
+
+    $("#subscribe").click(function () {
+        var subscribeRequest = new $.openlink.SubscribeRequest($("#interest").val());
+        appendSendToLog(subscribeRequest.toXml());
+        $.openlink.send(
+            subscribeRequest,
+            function (response) {
+                checkForErrorOrUnexpectedResponse(response, "subscribe");
+            },
+            timeoutHandler);
+    });
+
+    $("#unsubscribe").click(function () {
+        var unsubscribeRequest = new $.openlink.UnsubscribeRequest($("#interest").val());
+        appendSendToLog(unsubscribeRequest.toXml());
+        $.openlink.send(
+            unsubscribeRequest,
+            function (response) {
+                checkForErrorOrUnexpectedResponse(response, "unsubscribe");
+            },
+            timeoutHandler);
+    });
+
+    $("#copy-interest").click(function () {
+        var spanText = $("#interest-id-to-copy");
+        var el = spanText.text($("#interest").val()).show().get(0);
+        // Following from http://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse
+        var doc = window.document, sel, range;
+        if (window.getSelection && doc.createRange) {
+            sel = window.getSelection();
+            range = doc.createRange();
+            range.selectNodeContents(el);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        } else if (doc.body.createTextRange) {
+            range = doc.body.createTextRange();
+            range.moveToElementText(el);
+            range.select();
+        }
+
+        doc.execCommand('Copy');
+        spanText.hide();
+    });
+
+    $("#get-call-history").click(function () {
+        $("#getCallHistoryDialog").dialog("open");
+    });
+
+    $(".call-history-date").datepicker({
+        dateFormat: 'dd-M-yy',
+        showButtonPanel: true,
+        closeText: 'Clear'
+    }).focus(function () {
+        var dp = $(this);
+        dp.find(".ui-datepicker-current").hide();
+        $('.ui-datepicker-close').click(function () {
+            $.datepicker._clearDate(dp);
+        });
+    });
+
+    var callHistoryTableObject = $('#callHistoryTable');
+    var callHistoryTable = callHistoryTableObject.DataTable({
+        scrollY: 400,
+        scrollX: true,
+        searching: false,
+        paging: false,
+        info: false,
+        columnDefs: [
+            {className: "dt-right", targets: [5]}
+        ]
+    });
+
+    var getCallHistory = function () {
+        var getCallHistoryRequest = new $.openlink.GetCallHistoryRequest()
+            .forUser($.trim($("#get-call-history-user").val()));
+        var fromCaller = $.trim($("#get-call-history-from-caller").val());
+        if (fromCaller !== '') {
+            getCallHistoryRequest = getCallHistoryRequest.fromCaller(fromCaller);
+        }
+        var toDestination = $.trim($("#get-call-history-to-destination").val());
+        if (toDestination !== '') {
+            getCallHistoryRequest = getCallHistoryRequest.toDestination(toDestination);
+        }
+        var callType = $("#get-call-history-call-type").val();
+        switch (callType) {
+            case "missed":
+                getCallHistoryRequest = getCallHistoryRequest.forMissedCalls();
+                break;
+            case "inbound":
+                getCallHistoryRequest = getCallHistoryRequest.forInboundCalls();
+                break;
+            case "outbound":
+                getCallHistoryRequest = getCallHistoryRequest.forOutboundCalls();
+                break;
+        }
+        var fromDate = $("#get-call-history-from-date").datepicker("getDate");
+        if (fromDate !== null) {
+            getCallHistoryRequest = getCallHistoryRequest.fromDate(fromDate);
+        }
+        var untilDate = $("#get-call-history-until-date").datepicker("getDate");
+        if (untilDate !== null) {
+            getCallHistoryRequest = getCallHistoryRequest.untilDate(untilDate);
+        }
+        var fromRecord = parseInt($("#get-call-history-from-record").val());
+        if (isFinite(fromRecord)) {
+            getCallHistoryRequest = getCallHistoryRequest.fromRecordNumber(fromRecord);
+        }
+        var recordCount = parseInt($("#get-call-history-record-count").val());
+        if (isFinite(recordCount)) {
+            getCallHistoryRequest = getCallHistoryRequest.withNumberOfRecords(recordCount);
+        }
+
+        console.log("Sending get-call-history request", getCallHistoryRequest);
+        appendSendToLog(getCallHistoryRequest.toXml());
+        $.openlink.send(
+            getCallHistoryRequest,
+            function (response) {
+                checkForErrorOrUnexpectedResponse(response, "call history");
+                if (response.getType() === 'result') {
+                    callHistoryTable.clear();
+                    var firstRecordNumber = response.getNumberOfRecordsReturned() === 0 ? 0 : response.getFirstRecordNumberReturned();
+                    var lastRecordNumber = response.getNumberOfRecordsReturned() === 0 ? 0 : response.getFirstRecordNumberReturned() + response.getNumberOfRecordsReturned() - 1;
+                    $("#callHistoryStart").text(firstRecordNumber);
+                    $("#callHistoryEnd").text(lastRecordNumber);
+                    $("#callHistoryCount").text(response.getNumberOfRecordsReturned());
+                    $("#callHistoryTotal").text(response.getTotalNumberOfRecords());
+                    var calls = response.getCalls();
+                    for (var i = 0; i < calls.length; i++) {
+                        var call = calls[i];
+                        callHistoryTable.row.add([
+                            $.localtime.toLocalTime(call.timestamp, 'yyyy-MM-dd HH:mm:ss.SSS'),
+                            undefinedToEmpty(call.state),
+                            undefinedToEmpty(call.direction),
+                            undefinedToEmpty(call.callerNumber),
+                            undefinedToEmpty(call.calledNumber),
+                            undefinedToEmpty(call.duration)
+                        ]);
+                    }
+                    callHistoryTable.draw();
+                    // Nasty hack to make the table visible; I can't get the style definition right :(
+                    callHistoryTableObject.find('td').css('background-color', 'black');
+                    $("#getCallHistoryResultDialog").dialog("open");
+                    // Trigger a resize event so the headers are re-drawn
+                    callHistoryTableObject.resize();
+                }
+            },
+            timeoutHandler);
+    };
+
+    $("#getCallHistoryDialog").dialog({
+        autoOpen: false,
+        modal: true,
+        width: 'auto',
+        height: 'auto',
+        buttons: [{
+            text: "OK",
+            click: function () {
+                getCallHistory();
+                $(this).dialog("close");
+            }
+        }, {
+            text: "Cancel", click: function () {
+                $(this).dialog("close");
+            }
+        }],
+        open: function () {
+            // Give the first ("OK") button focus;
+            $(this).parent().find('button:nth-child(1)').focus();
+        }
+    });
+
+    $("#getCallHistoryResultDialog").dialog({
+        autoOpen: false,
+        modal: true,
+        width: '800',
+        height: 'auto',
+        buttons: [{
+            text: "OK",
+            click: function () {
+                $(this).dialog("close");
+            }
+        }],
+        open: function () {
+            // Give the first ("OK") button focus;
+            $(this).parent().find('button:nth-child(1)').focus();
+        }
+
+    });
+
+    $("#make-intercom-call").click(function () {
+        var makeIntercomCallRequest = new $.openlink.MakeIntercomCallRequest($("#profile").val());
+        var intercomUser = $.trim($("#make-intercom-call-user").val());
+        if (intercomUser !== '') {
+            makeIntercomCallRequest = makeIntercomCallRequest.toUser(intercomUser);
+        }
+        var intercomGroup = $.trim($("#make-intercom-call-group").val());
+        if (intercomGroup !== '') {
+            makeIntercomCallRequest = makeIntercomCallRequest.toGroup(intercomGroup);
+        }
+        if (intercomUser === '' && intercomGroup === '') {
+            alertDialogTextSelector.text('A user or intercom group must be specified');
+            alertDialogSelector.dialog('option', 'title', 'No destination');
+            alertDialogSelector.dialog("open");
+        }
+        Object.keys(callFeatures).forEach(function (featureId) {
+            var feature = callFeatures[featureId];
+            makeIntercomCallRequest = makeIntercomCallRequest.withFeature(featureId, feature.value1, feature.value2);
+        });
+
+        console.log("Sending make-intercom-call request", makeIntercomCallRequest);
+        appendSendToLog(makeIntercomCallRequest.toXml());
+        $.openlink.send(
+            makeIntercomCallRequest,
+            function (response) {
+                checkForErrorOrUnexpectedResponse(response, "make-intercom-call stanza");
+            },
+            timeoutHandler);
+    });
+
+    $("#sendMessageDialog").dialog({
+        autoOpen: false,
+        modal: true,
+        width: 'auto',
+        height: 'auto',
+        buttons: [{
+            text: "OK",
+            click: function () {
+                $(this).dialog("close");
+                var stanza = $.openlink.stanza($("#messageToSend").val());
+                console.log("Sending stanza", stanza);
+                appendSendToLog(stanza.toXml());
+                $.openlink.send(
+                    stanza,
+                    function (response) {
+                        checkForErrorOrUnexpectedResponse(response, "send custom stanza");
+                    },
+                    timeoutHandler);
+            }
+        }, {
+            text: "Cancel",
+            click: function () {
+                $(this).dialog("close");
+            }
+        }]
+    });
+
+
+    $("#send-message").click(function () {
+        $("#sendMessageDialog").dialog("open");
+    });
+
+    $("#set-priority").click(function () {
+        var setPriorityRequest = new $.openlink.SetPriorityRequest($("#priority").val());
+        console.log("Sending SetPriorityRequest", setPriorityRequest);
+        appendSendToLog(setPriorityRequest.toXml());
+        $.openlink.send(setPriorityRequest);
+    });
+
+    $("#add-call-feature").click(function () {
+        var featureId = $("#call-feature-id").val();
+        if (featureId === '') {
+            alertDialogSelector.dialog('option', 'title', 'No feature specified');
+            alertDialogTextSelector.text('You must specify the feature to set when making a call');
+            alertDialogSelector.dialog("open");
+        } else {
+            var featureValues = {};
+            var value1 = $.trim($("#call-feature-value1").val());
+            if (value1 !== '') {
+                featureValues.value1 = value1;
+            }
+            var value2 = $.trim($("#call-feature-value2").val());
+            if (value2 !== '') {
+                featureValues.value2 = value2;
+            }
+            callFeatures[featureId] = featureValues;
+            updateFeaturesLabel();
+        }
+    });
+
+    var callFeaturesTable = $('#callFeaturesTable');
+    callFeaturesTable.DataTable({
+        scrollX: true,
+        searching: false,
+        paging: false,
+        info: false
+    });
+
+    $("#features").click(function () {
+        callFeaturesTable.DataTable().clear();
+        Object.keys(callFeatures).forEach(function (featureId) {
+            var feature = callFeatures[featureId];
+            callFeaturesTable.DataTable().row.add([
+                featureId,
+                undefinedToEmpty(feature.value1),
+                undefinedToEmpty(feature.value2),
+                '<input type="button" style="width:2em" value="X" onclick="removeCallFeature(\'' + featureId + '\')"/>'
+            ]);
+        });
+        callFeaturesTable.DataTable().draw();
+        // Nasty hack to make the table visible; I can't get the style definition right :(
+        callFeaturesTable.find('td').css('background-color', 'black');
+        $("#callFeaturesDialog").dialog("open");
+        // Trigger a resize event so the headers are re-drawn
+        callFeaturesTable.resize();
+    });
+
+    var removeCallFeature = function (featureId) {
+        delete callFeatures[featureId];
+        updateFeaturesLabel();
+        $("#features").click();
+    };
+
+    var updateFeaturesLabel = function () {
+        $("#features").val("Features (" + Object.keys(callFeatures).length + ")");
+    };
+
+    var refreshVoiceMessages = function () {
+        // Send a get-features request
+        var getFeaturesRequest = new $.openlink.GetFeaturesRequest($("#profile").val());
+        appendSendToLog(getFeaturesRequest.toXml());
+        $.openlink.send(
+            getFeaturesRequest,
+            function (response) {
+                checkForErrorOrUnexpectedResponse(response, "get features");
+                if ('result' === response.getType()) {
+                    $(".requiresGetFeatures").prop('disabled', false);
+                    var features = response.getFeatures();
+                    updateVoiceMessages(features);
+                }
+            },
+            timeoutHandler);
+    };
+
+    $("#manageVoiceMessages").dialog({
+        autoOpen: false,
+        modal: true,
+        width: 'auto',
+        height: 'auto',
+        buttons: [{
+            text: "OK",
+            click: function () {
+                $(this).dialog("close");
+            }
+        }, {
+            text: "Refresh",
+            click: function () {
+                refreshVoiceMessages();
+            }
+        }],
+        open: function () {
+            // Give the first ("OK") button focus;
+            $(this).parent().find('button:nth-child(1)').focus();
+        }
+    });
+
+    var mvmLabelDialogSelector = $("#mvm-label-dialog");
+    mvmLabelDialogSelector.dialog({
+        autoOpen: false,
+        modal: true,
+        width: 'auto',
+        height: 'auto',
+        buttons: [{
+            text: "OK",
+            click: function () {
+                $(this).dialog("close");
+            }
+        }, {
+            text: "Cancel", click: function () {
+                $(this).dialog("close");
+            }
+        }],
+        open: function () {
+            // Give the first ("OK") button focus;
+            $(this).parent().find('button:nth-child(1)').focus();
+        }
+    });
+
+    var voiceMessageTable = $('#voiceMessageTable');
+    voiceMessageTable.DataTable({
+        scrollX: true,
+        searching: false,
+        paging: false,
+        info: false
+    });
+
+    $("#vm-all-checked").click(function () {
+        $('.voiceMessageCheckbox').prop("checked", $(this).prop("checked"));
+        onCheckboxClick();
+    });
+
+    var updateVoiceMessages = function (features) {
+        voiceMessageSelector.html($("<option/>", {
+            value: "",
+            text: "",
+            selected: 'selected'
+        }));
+        voiceMessageTable.DataTable().clear();
+        for (var i = 0; i < features.length; i++) {
+            var feature = features[i];
+
+            if (feature.isVoiceMessage) {
+                voiceMessageSelector.append($("<option/>", {value: feature.id, text: feature.label}));
+
+                voiceMessageTable.DataTable().row.add([
+                    feature.id,
+                    undefinedToEmpty(feature.label),
+                    '', // Length
+                    '', // Creation date
+                    $('<input />', {
+                        type: 'checkbox',
+                        'class': 'voiceMessageCheckbox',
+                        style: 'width:auto',
+                        name: 'selectedMessages',
+                        value: feature.id
+                    }).prop('outerHTML')
+                ]);
+            }
+        }
+        voiceMessageTable.DataTable().draw();
+        // Nasty hack to make the table visible; I can't get the style definition right :(
+        voiceMessageTable.find('td').css('background-color', 'black');
+        $(".voiceMessageCheckbox").click(onCheckboxClick);
+        onCheckboxClick();
+    };
+
+    var onCheckboxClick = function () {
+        var buttonsActiveWithOneMessage = $("#mvm-Query, #mvm-Edit, #mvm-Playback, #mvm-Delete");
+        var numberOfRowsChecked = $('.voiceMessageCheckbox:checked').size();
+        switch (numberOfRowsChecked) {
+            // NB. Can always Record
+            case 0:
+                buttonsActiveWithOneMessage.prop('disabled', true);
+                break;
+            case 1:
+                buttonsActiveWithOneMessage.prop('disabled', false);
+                break;
+            default:
+                $("#mvm-Query, #mvm-Delete").prop('disabled', false);
+                $("#mvm-Edit, #mvm-Playback").prop('disabled', true);
+                break;
+        }
+        $("#vm-all-checked").prop("checked", numberOfRowsChecked === voiceMessageTable.DataTable().rows().count());
+    };
+
+    $("#manage-voice-messages").click(function () {
+        $("#manageVoiceMessages").dialog("open");
+        // Trigger a resize event so the headers are re-drawn
+        voiceMessageTable.resize();
+    });
+
+    $("#mvm-Record").click(function () {
+        $("#voice-message-label").val("");
+        mvmLabelDialogSelector.dialog('option', 'buttons', [{
+            text: "OK",
+            click: function () {
+                $(this).dialog("close");
+                var mvm = new $.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Record')
+                    .withLabel($("#voice-message-label").val());
+                appendSendToLog(mvm.toXml());
+                $.openlink.send(
+                    mvm,
+                    function (response) {
+                        checkForErrorOrUnexpectedResponse(response, "manage voice message record");
+                        if (response.isResult() && response.constructor.name === 'ManageVoiceMessageResult') {
+                            var feature = response.getFeatures()[0];
+                            if (typeof feature === 'object' && typeof feature.extension === 'string') {
+                                var makeCallRequest = new $.openlink.MakeCallRequest()
+                                    .onInterest($("#interest").val())
+                                    .forUser($.trim($("#user").val()))
+                                    .toDestination(response.getFeatures()[0].extension)
+                                    .withVoiceMessageFeature(feature.id);
+                                appendSendToLog(makeCallRequest.toXml());
+                                $.openlink.send(
+                                    makeCallRequest,
+                                    function (response) {
+                                        checkForErrorOrUnexpectedResponse(response, "make call for voice message recording");
+                                    },
+                                    timeoutHandler);
+                            }
+                        }
+                    },
+                    timeoutHandler);
+            }
+        }, {
+            text: "Cancel", click: function () {
+                $(this).dialog("close");
+            }
+        }]);
+        mvmLabelDialogSelector.dialog("open");
+    });
+
+    $("#mvm-Playback").click(function () {
+        var mvm = new $.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Playback')
+            .withFeature($('.voiceMessageCheckbox:checked').val());
+        appendSendToLog(mvm.toXml());
+        $.openlink.send(
+            mvm,
+            function (response) {
+                checkForErrorOrUnexpectedResponse(response, "manage voice message playback");
+                if (response.isResult() && response.constructor.name === 'ManageVoiceMessageResult') {
+                    var feature = response.getFeatures()[0];
+                    if (typeof feature === 'object' && typeof feature.extension === 'string') {
+                        var makeCallRequest = new $.openlink.MakeCallRequest()
+                            .onInterest($("#interest").val())
+                            .forUser($.trim($("#user").val()))
+                            .toDestination(response.getFeatures()[0].extension)
+                            .withVoiceMessageFeature(feature.id);
+                        appendSendToLog(makeCallRequest.toXml());
+                        $.openlink.send(
+                            makeCallRequest,
+                            function (response) {
+                                checkForErrorOrUnexpectedResponse(response, "make call for voice message playback");
+                            },
+                            timeoutHandler);
+                    }
+                }
+            },
+            timeoutHandler);
+    });
+
+    $("#mvm-Edit").click(function () {
+        $("#voice-message-label").val("");
+        mvmLabelDialogSelector.dialog('option', 'buttons', [{
+            text: "OK",
+            click: function () {
+                $(this).dialog("close");
+                var mvm = new $.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Edit')
+                    .withFeature($('.voiceMessageCheckbox:checked').val())
+                    .withLabel($("#voice-message-label").val());
+                appendSendToLog(mvm.toXml());
+                $.openlink.send(
+                    mvm,
+                    function (response) {
+                        checkForErrorOrUnexpectedResponse(response, "manage voice message edit");
+                        if (response.isResult()) {
+                            refreshVoiceMessages();
+                        }
+                    },
+                    timeoutHandler);
+            }
+        }, {
+            text: "Cancel", click: function () {
+                $(this).dialog("close");
+            }
+        }]);
+        mvmLabelDialogSelector.dialog("open");
+    });
+
+    $("#mvm-Delete").click(function () {
+        var mvm = new $.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Delete');
+        $('.voiceMessageCheckbox:checked').each(function () {
+            mvm = mvm.withFeature($(this).val());
+        });
+        appendSendToLog(mvm.toXml());
+        $.openlink.send(
+            mvm,
+            function (response) {
+                checkForErrorOrUnexpectedResponse(response, "manage voice message delete");
+                if (response.isResult()) {
+                    refreshVoiceMessages();
+                }
+            },
+            timeoutHandler);
+    });
+
+    $("#mvm-Query").click(function () {
+        var mvm = new $.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Query');
+        $('.voiceMessageCheckbox:checked').each(function () {
+            mvm = mvm.withFeature($(this).val());
+        });
+        appendSendToLog(mvm.toXml());
+        $.openlink.send(
+            mvm,
+            function (response) {
+                checkForErrorOrUnexpectedResponse(response, "manage voice message query");
+                var feature;
+                var updateRow = function (rowIdx) {
+                    var data = voiceMessageTable.DataTable().row(rowIdx).data();
+                    if (data[0] === feature.id) {
+                        this.data([
+                            feature.id,
+                            feature.label,
+                            feature.messageLength,
+                            $.localtime.toLocalTime(feature.creationDate, 'yyyy-MM-dd HH:mm:ss.SSS'),
+                            data[4]
+                        ]);
+                    }
+                };
+                if (response.constructor.name === 'ManageVoiceMessageResult') {
+                    var features = response.getFeatures();
+                    var rows = voiceMessageTable.DataTable().rows();
+                    for (var i = 0; i < features.length; i++) {
+                        feature = features[i];
+                        rows.every(updateRow);
+                    }
+                    voiceMessageTable.DataTable().draw();
+                    $(".voiceMessageCheckbox").click(onCheckboxClick);
+                    onCheckboxClick();
+                }
+            },
+            timeoutHandler);
+    });
+    var initialisePage = function () {
+
+        $("#log").val("");
+        $("#messageToSend").val("");
+        callTable.clear().draw();
+
+        callFeatures = {};
+        updateFeaturesLabel();
+
+        $(".requiresGetProfiles").prop('disabled', true);
+        $("#profile").html($("<option/>", {text: "get-profiles required"}));
+
+        $(".requiresGetInterests").prop('disabled', true);
+        $("#interest").html($("<option/>", {text: "get-interests required"}));
+
+        $(".requiresGetFeatures").prop('disabled', true);
+        $("#set-feature-id,#call-feature-id,#make-intercom-call-group,#voice-messages").html($("<option/>", {text: "get-features required"}));
+
+        $(".ui-dialog-content").dialog("close");
+    };
+
+    initialisePage();
+    loginDialogSelector.dialog("open");
+
+</script>
+
+</body>
+</html>

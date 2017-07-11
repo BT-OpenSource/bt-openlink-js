@@ -1,0 +1,39 @@
+Openlink-JS SDK changelog
+=========================
+
+0.4.3 - TBC.
+============
+* First releease to GitHub
+
+0.4.2 - 30 June 2017
+====================
+* ITR-3422 - JavaScript Openlink SDK; "Record" new voice message not working
+
+0.4.1 - 30 June 2017
+====================
+* ITR-3421 - JavaScript Openlink SDK - site.isVMS returns false for newer VMS platforms
+* ITR-3422 - JavaScript Openlink SDK - a get-profiles response with multiple profiles can return the wrong site details
+
+0.4.0 - 12 June 2017
+====================
+* Simplify login sequence - only provide support for stanza.io mechanism
+
+0.3.1 - 25 April 2017
+=====================
+* Polyfill String.startsWith to cover IE support
+* Add missing semicolon from test harness
+
+0.3.0 - 25 April 2017
+=====================
+* Add timeout support
+* Add VMS support
+
+0.2.0 - 21 March 2017
+=====================
+* Update build to use gradle
+* Introduce parallel support with Openfire 3.x and Openfire 4.x WebSockets
+
+
+0.1.0 - 31 August 2016
+======================
+Initial version

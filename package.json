@@ -1,0 +1,28 @@
+{
+  "name": "openlink-js",
+  "version": "0.4.3-SNAPSHOT",
+  "title": "BT Openlink JavaScript API",
+  "description": "A JavaScript wrapper to the BT Collaboration Server Openlink API.",
+  "homepage": "https://www.bt.com/unifiedtrading",
+  "author": {
+    "name": "BT",
+    "email": "itrader.development@bt.com"
+  },
+  "dependencies": {
+    "jquery": "*"
+  },
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "scripts": {
+    "test": "grunt qunit"
+  },
+  "devDependencies": {
+    "grunt": "~1.0.1",
+    "grunt-contrib-clean": "~1.0.0",
+    "grunt-contrib-concat": "~1.0.1",
+    "grunt-contrib-jshint": "~1.1.0",
+    "grunt-contrib-qunit": "~1.3.0",
+    "grunt-contrib-uglify": "~2.2.0"
+  }
+}
