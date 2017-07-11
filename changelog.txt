@@ -3,7 +3,8 @@ Openlink-JS SDK changelog
 
 0.4.3 - TBC.
 ============
-* First releease to GitHub
+* First release to GitHub
+* Add promise polyfill to the test harness to allow it to work on IE11
 
 0.4.2 - 30 June 2017
 ====================
