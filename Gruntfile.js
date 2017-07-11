@@ -6,7 +6,8 @@ module.exports = function (grunt) {
     grunt.initConfig({
         // Metadata.
         pkg: grunt.file.readJSON('package.json'),
-        banner: '/*!\n' +
+        banner:
+        '/*!\n' +
         ' * <%= pkg.title || pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n' +
         '<%= pkg.homepage ? " * " + pkg.homepage + "\\n" : "" %>' +
         ' * Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>\n' +
@@ -71,33 +72,6 @@ module.exports = function (grunt) {
             test: {
                 files: '<%= jshint.test.src %>',
                 tasks: ['jshint:test', 'qunit']
-            }
-        },
-        maven: {
-            options: {
-                groupId: 'com.bt.itrader.sdk',
-                artifactId: 'openlink-js'
-            },
-            deploy: {
-                options: {
-                    goal: 'deploy',
-                    url: 'https://collaborate.bt.com/artefacts/content/repositories/bt-itrader-snapshots/',
-                    repositoryId: 'bt-itrader-snapshots',
-                    uniqueVersion: false
-                },
-                expand: true,
-                cwd: 'dist/',
-                src: ['*', '../sample/*', '../src/jquery.openlink.js']
-            },
-            release: {
-                options: {
-                    goal: 'deploy',
-                    url: 'https://collaborate.bt.com/artefacts/content/repositories/bt-itrader-releases/',
-                    repositoryId: 'bt-itrader-releases'
-                },
-                expand: true,
-                cwd: 'dist/',
-                src: ['*', '../sample/*', '../src/jquery.openlink.js']
             }
         }
     });
