@@ -5,6 +5,7 @@ Openlink-JS SDK changelog
 ============
 * First release to GitHub
 * Add promise polyfill to the test harness to allow it to work on IE11
+* Avoid using <object>.constructor.name which isn't available on IE11
 
 0.4.2 - 30 June 2017
 ====================
