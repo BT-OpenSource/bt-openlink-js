@@ -989,7 +989,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
         console.log("onMessage(): message", message);
         appendReceiveToLog(message.toXml());
         var stanzaType = message.getStanzaType();
-        if (stanzaType !== 'message' && stanzaType !== 'presence' && message.constructor.name !== 'IqBindResult') {
+        if (stanzaType !== 'message' && stanzaType !== 'presence') {
             alertDialogTextSelector.text('Unexpected stanza type. Stanza type = "' + stanzaType + '"');
             alertDialogSelector.dialog('option', 'title', 'Unexpected stanza type');
             alertDialogSelector.dialog("open");
@@ -1826,7 +1826,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
                     mvm,
                     function (response) {
                         checkForErrorOrUnexpectedResponse(response, "manage voice message record");
-                        if (response.isResult() && response.constructor.name === 'ManageVoiceMessageResult') {
+                        if (response.isResult() && typeof response.getFeatures === 'function') {
                             var feature = response.getFeatures()[0];
                             if (typeof feature === 'object' && typeof feature.extension === 'string') {
                                 var makeCallRequest = new $.openlink.MakeCallRequest()
@@ -1862,7 +1862,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
             mvm,
             function (response) {
                 checkForErrorOrUnexpectedResponse(response, "manage voice message playback");
-                if (response.isResult() && response.constructor.name === 'ManageVoiceMessageResult') {
+                if (response.isResult() && typeof response.getFeatures === 'function') {
                     var feature = response.getFeatures()[0];
                     if (typeof feature === 'object' && typeof feature.extension === 'string') {
                         var makeCallRequest = new $.openlink.MakeCallRequest()
@@ -1951,7 +1951,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
                         ]);
                     }
                 };
-                if (response.constructor.name === 'ManageVoiceMessageResult') {
+                if (typeof response.getFeatures === 'function') {
                     var features = response.getFeatures();
                     var rows = voiceMessageTable.DataTable().rows();
                     for (var i = 0; i < features.length; i++) {
