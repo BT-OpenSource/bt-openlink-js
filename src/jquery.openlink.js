@@ -83,9 +83,6 @@
                 if (isFunction(callback.responseHandler)) {
                     callback.responseHandler(stanza);
                 }
-            } else if ('IqPingRequest' === stanza.constructor.name) {
-                var pingResult = "<iq from='" + xmlEscape(stanza.getTo()) + "' to='" + xmlEscape(stanza.getFrom()) + "' id='" + xmlEscape(stanza.getId()) + "' type='result'/>";
-                sendPacket(pingResult);
             } else {
                 onMessage(stanza);
             }
