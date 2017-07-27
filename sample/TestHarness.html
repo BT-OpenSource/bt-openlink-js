@@ -1832,7 +1832,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
                                 var makeCallRequest = new $.openlink.MakeCallRequest()
                                     .onInterest($("#interest").val())
                                     .forUser($.trim($("#user").val()))
-                                    .toDestination(response.getFeatures()[0].extension)
+                                    .toDestination(feature.extension)
                                     .withVoiceMessageFeature(feature.id);
                                 appendSendToLog(makeCallRequest.toXml());
                                 $.openlink.send(
@@ -1868,7 +1868,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
                         var makeCallRequest = new $.openlink.MakeCallRequest()
                             .onInterest($("#interest").val())
                             .forUser($.trim($("#user").val()))
-                            .toDestination(response.getFeatures()[0].extension)
+                            .toDestination(feature.extension)
                             .withVoiceMessageFeature(feature.id);
                         appendSendToLog(makeCallRequest.toXml());
                         $.openlink.send(
