@@ -142,11 +142,79 @@
             isOutgoing: false,
             callerNumber: '6005',
             callerName: '6005',
+            callerE164: [],
+            callerPreferredNumber: '6005',
             calledNumber: "6003",
+            calledDestination: undefined,
+            calledE164: [],
+            calledPreferredNumber: '6003',
             calledName: "6003/1",
             duration: 0,
             actions: ['AnswerCall']
         });
     });
+
+    module('call-status number formatting');
+    test('Will return all available numbers', function () {
+        var stanza = new $.openlink.stanza(
+            "<message to='trader1@btp072883' from='pubsub.btp072883' id='sip:6003@uta.bt.com-DirectDial-1trader1@btsm11__trader1@btp072883__taHRN'>\n" +
+            "  <event xmlns='http://jabber.org/protocol/pubsub#event'>\n" +
+            "    <items node='sip:6003@uta.bt.com-DirectDial-1trader1@btsm11'>\n" +
+            "      <item id='L0pDQw6G1Q6AJWo'>\n" +
+            "        <callstatus xmlns='http://xmpp.org/protocol/openlink:01:00:00#call-status' busy='false'>\n" +
+            "          <call>\n" +
+            "            <caller>\n" +
+            "              <number e164='caller-e164#1,caller-e164#2'>cli</number>\n" +
+            "            </caller>\n" +
+            "            <called>\n" +
+            "              <number e164='called-e164#1,called-e164#2' destination='destination-number'>dialled-number</number>\n" +
+            "            </called>\n" +
+            "          </call>\n" +
+            "        </callstatus>\n" +
+            "      </item>\n" +
+            "    </items>\n" +
+            "  </event>\n" +
+            "</message>\n");
+
+        var call = stanza.getCalls()[0];
+        equal(call.callerNumber, 'cli');
+        equal(call.callerE164[0], 'caller-e164#1');
+        equal(call.callerE164[1], 'caller-e164#2');
+        equal(call.callerPreferredNumber, 'cli');
+
+        equal(call.calledNumber, 'dialled-number');
+        equal(call.calledDestination, 'destination-number');
+        equal(call.calledE164[0], 'called-e164#1');
+        equal(call.calledE164[1], 'called-e164#2');
+        equal(call.calledPreferredNumber, 'destination-number');
+    });
+
+    test('Will return E.164 number as preferred', function () {
+        var stanza = new $.openlink.stanza(
+            "<message to='trader1@btp072883' from='pubsub.btp072883' id='sip:6003@uta.bt.com-DirectDial-1trader1@btsm11__trader1@btp072883__taHRN'>\n" +
+            "  <event xmlns='http://jabber.org/protocol/pubsub#event'>\n" +
+            "    <items node='sip:6003@uta.bt.com-DirectDial-1trader1@btsm11'>\n" +
+            "      <item id='L0pDQw6G1Q6AJWo'>\n" +
+            "        <callstatus xmlns='http://xmpp.org/protocol/openlink:01:00:00#call-status' busy='false'>\n" +
+            "          <call>\n" +
+            "            <caller>\n" +
+            "              <number e164='caller-e164'>cli</number>\n" +
+            "            </caller>\n" +
+            "            <called>\n" +
+            "              <number e164='called-e164'>dialled-number</number>\n" +
+            "            </called>\n" +
+            "          </call>\n" +
+            "        </callstatus>\n" +
+            "      </item>\n" +
+            "    </items>\n" +
+            "  </event>\n" +
+            "</message>\n");
+
+        var call = stanza.getCalls()[0];
+        equal(call.callerPreferredNumber, 'caller-e164');
+
+        equal(call.calledPreferredNumber, 'called-e164');
+    });
+
 
 }(jQuery));

@@ -1824,8 +1824,22 @@
                 var callElementCount = callElements.length;
                 for (var j = 0; j < callElementCount; j++) {
                     var callElement = callElements[j];
+
                     var callerElement = getChildElementByElementName(callElement, 'caller');
+                    var callerNumberElement = getChildElementByElementName(callerElement, 'number');
+                    var callerNumber = getChildElementTextContent(callerElement, "number");
+                    var callerE164NumberValue = getAttributeValue(callerNumberElement, 'e164');
+                    var callerE164 = isString(callerE164NumberValue) ? callerE164NumberValue.split(",") : [];
+                    var callerPreferredNumber = callerE164.length === 1 ? callerE164[0] : callerNumber;
+
                     var calledElement = getChildElementByElementName(callElement, 'called');
+                    var calledNumberElement = getChildElementByElementName(calledElement, 'number');
+                    var calledNumber = getChildElementTextContent(calledElement, "number");
+                    var calledDestination = getAttributeValue(calledNumberElement, "destination");
+                    var calledE164NumberValue = getAttributeValue(calledNumberElement, 'e164');
+                    var calledE164 = isString(calledE164NumberValue) ? calledE164NumberValue.split(",") : [];
+                    var calledPreferredNumber = isString(calledDestination) ? calledDestination : (calledE164.length === 1 ? calledE164[0] : calledNumber);
+
                     var actionsElement = getChildElementByElementName(callElement, 'actions');
                     var actionElements = getChildElements(actionsElement);
                     var actionCount = actionElements.length;
@@ -1845,9 +1859,14 @@
                         direction: direction,
                         isIncoming: direction === 'Incoming',
                         isOutgoing: direction === 'Outgoing',
-                        callerNumber: getChildElementTextContent(callerElement, "number"),
+                        callerNumber: callerNumber,
+                        callerE164: callerE164,
+                        callerPreferredNumber: callerPreferredNumber,
                         callerName: getChildElementTextContent(callerElement, "name"),
-                        calledNumber: getChildElementTextContent(calledElement, "number"),
+                        calledNumber: calledNumber,
+                        calledDestination: calledDestination,
+                        calledE164: calledE164,
+                        calledPreferredNumber: calledPreferredNumber,
                         calledName: getChildElementTextContent(calledElement, "name"),
                         duration: parseInt(getChildElementTextContent(callElement, "duration")),
                         actions: actions

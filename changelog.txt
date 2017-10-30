@@ -6,6 +6,7 @@ Openlink-JS SDK changelog
 * First release to GitHub
 * Add promise polyfill to the test harness to allow it to work on IE11
 * Avoid using <object>.constructor.name which isn't available on IE11
+* Add callerE164/calledE164, calledPreferredNumber/callerPreferredNumber, calledDestination to call status message
 
 0.4.2 - 30 June 2017
 ====================
