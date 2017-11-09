@@ -1848,6 +1848,17 @@
                     for (var k = 0; k < actionCount; k++) {
                         actions.push(actionElements[k].tagName);
                     }
+                    
+                    var featuresElement = getChildElementByElementName(callElement, 'features');
+                    var featuresElements = getChildElements(featuresElement);
+                    var features = [];
+                    for (var k = 0; k < featuresElements.length; k++) {
+                        var feature = featuresElements[k]
+                        features.push({
+                            id: getAttributeValue(feature, "id"),
+                            feature: feature.textContent,
+                        })
+                    }
 
                     this.calls.push({
                         id: getChildElementTextContent(callElement, "id"),
@@ -1869,7 +1880,8 @@
                         calledPreferredNumber: calledPreferredNumber,
                         calledName: getChildElementTextContent(calledElement, "name"),
                         duration: parseInt(getChildElementTextContent(callElement, "duration")),
-                        actions: actions
+                        actions: actions,
+                        features: features
                     });
                 }
             }
