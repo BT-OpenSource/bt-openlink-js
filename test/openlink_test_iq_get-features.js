@@ -324,7 +324,7 @@
         propEqual(features[i++], {
             id: 'hs_2',
             label: 'Handset 2',
-            type: 'HANDSET',
+            type: 'Handset',
             isSettable: true,
             isCallable: true,
             isVoiceMessage: false,
@@ -333,7 +333,7 @@
         propEqual(features[i++], {
             id: 'fwd_1',
             label: 'Call Forward',
-            type: 'CALLFORWARD',
+            type: 'CallForward',
             isSettable: true,
             isCallable: false,
             isVoiceMessage: false,

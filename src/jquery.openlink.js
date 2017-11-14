@@ -1923,10 +1923,10 @@
             callback: {properName: 'CallBack', isSettable: true, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
             conference: {properName: 'Conference', isSettable: true, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
             devicekeys: {properName: 'DeviceKeys', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
-            groupintercom: {properName: 'GroupIntercom', isSettable: false, isCallable: true, isVoiceMessage: false, isGroupIntercom: true},
+            groupintercom: {properName: 'GroupIntercom', isSettable: false, isCallable: false, isVoiceMessage: false, isGroupIntercom: true},
             speeddial: {properName: 'SpeedDial', isSettable: false, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
             voicemessage: {properName: 'VoiceMessage', isSettable: false, isCallable: true, isVoiceMessage: true, isGroupIntercom: false},
-            voicemessageplaylist: {properName: 'VoiceMessagePlayList', isSettable: false, isCallable: true, isVoiceMessage: true, isGroupIntercom: false}
+            voicemessageplaylist: {properName: 'VoiceMessagePlaylist', isSettable: false, isCallable: true, isVoiceMessage: true, isGroupIntercom: false}
         };
 
         var getFeatureType = function(featureType) {
