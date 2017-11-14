@@ -1014,15 +1014,15 @@
             var featuresElementCount = featureElements.length;
             for (var i = 0; i < featuresElementCount; i++) {
                 var featureElement = featureElements[i];
-                var type = getAttributeValue(featureElement, "type");
+                var featureType = getFeatureType(getAttributeValue(featureElement, "type"));
                 this.features.push({
                     id: getAttributeValue(featureElement, "id"),
                     label: $.trim(getAttributeValue(featureElement, "label")),
-                    type: type,
-                    isSettable: isSettableFeature(type),
-                    isCallable: isCallableFeature(type),
-                    isVoiceMessage: isVoiceMessage(type),
-                    isGroupIntercom: isGroupIntercom(type)
+                    type: featureType.properName,
+                    isSettable: featureType.isSettable,
+                    isCallable: featureType.isCallable,
+                    isVoiceMessage: featureType.isVoiceMessage,
+                    isGroupIntercom: featureType.isGroupIntercom
                 });
             }
         }
@@ -1484,46 +1484,6 @@
             return xml;
         };
 
-        // Note the case-insensitivity, because BTSM returns, e.g. CALLFORWARD (!)
-        var settableFeatures = [
-            'messagewaiting',
-            'microphonemute',
-            'speakermute',
-            'speakerchannel',
-            'ringerstatus',
-            'privacy',
-            'handset',
-            'donotdisturb',
-            'microphonegain',
-            'callforward',
-            'callback',
-            'conference',
-            'devicekeys'];
-        var makeCallFeatures = [
-            'speeddial',
-            'voicemessage',
-            'voicemessageplaylist',
-            'speakerchannel',
-            'privacy',
-            'handset',
-            'callback',
-            'conference'];
-        var voiceMessages = [
-            'voicemessage',
-            'voicemessageplaylist'];
-        var isSettableFeature = function (featureType) {
-            return settableFeatures.indexOf(featureType.toLowerCase()) > -1;
-        };
-
-        var isCallableFeature = function (featureType) {
-            return makeCallFeatures.indexOf(featureType.toLowerCase()) > -1;
-        };
-        var isVoiceMessage = function (featureType) {
-            return voiceMessages.indexOf(featureType.toLowerCase()) > -1;
-        };
-        var isGroupIntercom = function (featureType) {
-            return featureType.toLowerCase() === "groupintercom";
-        };
 
         /*
          *********************************************
@@ -1848,16 +1808,23 @@
                     for (var k = 0; k < actionCount; k++) {
                         actions.push(actionElements[k].tagName);
                     }
-                    
+
                     var featuresElement = getChildElementByElementName(callElement, 'features');
                     var featuresElements = getChildElements(featuresElement);
                     var features = [];
-                    for (var k = 0; k < featuresElements.length; k++) {
-                        var feature = featuresElements[k]
+                    for (k = 0; k < featuresElements.length; k++) {
+                        var feature = featuresElements[k];
+                        var featureType = getFeatureType(getAttributeValue(feature, "type"));
                         features.push({
                             id: getAttributeValue(feature, "id"),
-                            feature: feature.textContent,
-                        })
+                            type: featureType.properName,
+                            isSettable: featureType.isSettable,
+                            isCallable: featureType.isCallable,
+                            isVoiceMessage: featureType.isVoiceMessage,
+                            isGroupIntercom: featureType.isGroupIntercom,
+                            label: getAttributeValue(feature, "label"),
+                            isEnabled: feature.textContent === "true"
+                        });
                     }
 
                     this.calls.push({
@@ -1935,11 +1902,41 @@
 
         // Polyfill startsWith
         if (!String.prototype.startsWith) {
-            String.prototype.startsWith = function(searchString, position) {
+            String.prototype.startsWith = function (searchString, position) {
                 position = position || 0;
                 return this.indexOf(searchString, position) === position;
             };
         }
+
+        /* Deal with the case sensitivity issues of the features */
+        var featureList = {
+            messagewaiting: {properName: 'MessageWaiting', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
+            microphonemute: {properName: 'MicrophoneMute', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
+            speakermute: {properName: 'SpeakerMute', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
+            speakerchannel: {properName: 'SpeakerChannel', isSettable: true, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
+            ringerstatus: {properName: 'RingerStatus', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
+            privacy: {properName: 'Privacy', isSettable: true, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
+            handset: {properName: 'Handset', isSettable: true, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
+            donotdisturb: {properName: 'DoNotDisturb', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
+            microphonegain: {properName: 'MicrophoneGain', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
+            callforward: {properName: 'CallForward', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
+            callback: {properName: 'CallBack', isSettable: true, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
+            conference: {properName: 'Conference', isSettable: true, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
+            devicekeys: {properName: 'DeviceKeys', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
+            groupintercom: {properName: 'GroupIntercom', isSettable: false, isCallable: true, isVoiceMessage: false, isGroupIntercom: true},
+            speeddial: {properName: 'SpeedDial', isSettable: false, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
+            voicemessage: {properName: 'VoiceMessage', isSettable: false, isCallable: true, isVoiceMessage: true, isGroupIntercom: false},
+            voicemessageplaylist: {properName: 'VoiceMessagePlayList', isSettable: false, isCallable: true, isVoiceMessage: true, isGroupIntercom: false}
+        };
+
+        var getFeatureType = function(featureType) {
+            var featureTypeKey = String(featureType).toLowerCase();
+            if(featureList.hasOwnProperty(featureTypeKey)) {
+                return featureList[featureTypeKey];
+            } else {
+                return {properName: featureType, isSettable: false, isCallable: false, isVoiceMessage: false, isGroupIntercom: false};
+            }
+        };
 
         // Return the methods we expose
         return {
