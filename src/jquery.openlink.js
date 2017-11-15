@@ -1014,7 +1014,7 @@
             var featuresElementCount = featureElements.length;
             for (var i = 0; i < featuresElementCount; i++) {
                 var featureElement = featureElements[i];
-                var featureType = getFeatureType(getAttributeValue(featureElement, "type"));
+                var featureType = getFeatureType(featureElement);
                 this.features.push({
                     id: getAttributeValue(featureElement, "id"),
                     label: $.trim(getAttributeValue(featureElement, "label")),
@@ -1814,7 +1814,7 @@
                     var features = [];
                     for (k = 0; k < featuresElements.length; k++) {
                         var feature = featuresElements[k];
-                        var featureType = getFeatureType(getAttributeValue(feature, "type"));
+                        var featureType = getFeatureType(feature);
                         features.push({
                             id: getAttributeValue(feature, "id"),
                             type: featureType.properName,
@@ -1929,10 +1929,14 @@
             voicemessageplaylist: {properName: 'VoiceMessagePlaylist', isSettable: false, isCallable: true, isVoiceMessage: true, isGroupIntercom: false}
         };
 
-        var getFeatureType = function(featureType) {
-            var featureTypeKey = String(featureType).toLowerCase();
-            if(featureList.hasOwnProperty(featureTypeKey)) {
-                return featureList[featureTypeKey];
+        var getFeatureType = function(featureElement) {
+            var featureType = getAttributeValue(featureElement, "type");
+            if (!isDefined(featureType)) {
+                featureType = featureElement.textContent;
+            }
+            var lowercaseFeatureType = featureType.toLowerCase();
+            if(featureList.hasOwnProperty(lowercaseFeatureType)) {
+                return featureList[lowercaseFeatureType];
             } else {
                 return {properName: featureType, isSettable: false, isCallable: false, isVoiceMessage: false, isGroupIntercom: false};
             }

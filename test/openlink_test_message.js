@@ -99,6 +99,8 @@
         "              <feature id=\"hs_2\" type=\"HANDSET\" label=\"Handset 2\">false</feature>\n" +
         "              <feature id=\"priv_1\" type=\"PRIVACY\" label=\"Privacy\">false</feature>\n" +
         "              <feature id=\"unknown-id\" type=\"unknown-type\" label=\"unknown-label\">false</feature>\n" +
+        "              <feature id=\"MK1234\">VoiceMessage</feature>\n" +
+        "              <feature id=\"MK1235\" type='VoiceMessage' label='test-message'>something else</feature>\n" +
         "              <feature id=\"NetrixButton_trader1\" type=\"DEVICEKEYS\" label=\"NetrixButton\">\n" +
         "                <devicekeys xmlns=\"http://xmpp.org/protocol/openlink:01:00:00/features#device-keys\">\n" +
         "                  <key>key_1:1:7</key>\n" +
@@ -157,6 +159,8 @@
                 {id: 'hs_2', type: 'Handset', label: 'Handset 2', isEnabled: false, isCallable: true, isSettable: true, isVoiceMessage: false, isGroupIntercom: false},
                 {id: 'priv_1', type: 'Privacy', label: 'Privacy', isEnabled: false, isCallable: true, isSettable: true, isVoiceMessage: false, isGroupIntercom: false},
                 {id: 'unknown-id', type: 'unknown-type', label: 'unknown-label', isEnabled: false, isCallable: false, isSettable: false, isVoiceMessage: false, isGroupIntercom: false},
+                {id: 'MK1234', type: 'VoiceMessage', label: undefined, isEnabled: false, isCallable: true, isSettable: false, isVoiceMessage: true, isGroupIntercom: false},
+                {id: 'MK1235', type: 'VoiceMessage', label: 'test-message', isEnabled: false, isCallable: true, isSettable: false, isVoiceMessage: true, isGroupIntercom: false},
                 {id: 'NetrixButton_trader1', type: 'DeviceKeys', label: 'NetrixButton', isEnabled: false, isCallable: false, isSettable: true, isVoiceMessage: false, isGroupIntercom: false}
                 ]
 
