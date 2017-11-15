@@ -1911,28 +1911,39 @@
         /* Deal with the case sensitivity issues of the features */
         var featureList = {
             messagewaiting: {properName: 'MessageWaiting', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
+            microphonegain: {properName: 'MicrophoneGain', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
             microphonemute: {properName: 'MicrophoneMute', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
-            speakermute: {properName: 'SpeakerMute', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
-            speakerchannel: {properName: 'SpeakerChannel', isSettable: true, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
             ringerstatus: {properName: 'RingerStatus', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
+            speakermute: {properName: 'SpeakerMute', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
+            speeddial: {properName: 'SpeedDial', isSettable: false, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
+            groupintercom: {properName: 'GroupIntercom', isSettable: false, isCallable: false, isVoiceMessage: false, isGroupIntercom: true},
+            speakerchannel: {properName: 'SpeakerChannel', isSettable: true, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
+            voicemessage: {properName: 'VoiceMessage', isSettable: false, isCallable: true, isVoiceMessage: true, isGroupIntercom: false},
+            voicemessageplaylist: {properName: 'VoiceMessagePlaylist', isSettable: false, isCallable: true, isVoiceMessage: true, isGroupIntercom: false},
+            voicerecorder: {properName: 'VoiceRecorder', isSettable: false, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
+            voicebridge: {properName: 'VoiceBridge', isSettable: false, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
             privacy: {properName: 'Privacy', isSettable: true, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
             handset: {properName: 'Handset', isSettable: true, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
             donotdisturb: {properName: 'DoNotDisturb', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
-            microphonegain: {properName: 'MicrophoneGain', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
             callforward: {properName: 'CallForward', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
             callback: {properName: 'CallBack', isSettable: true, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
             conference: {properName: 'Conference', isSettable: true, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
-            devicekeys: {properName: 'DeviceKeys', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
-            groupintercom: {properName: 'GroupIntercom', isSettable: false, isCallable: false, isVoiceMessage: false, isGroupIntercom: true},
-            speeddial: {properName: 'SpeedDial', isSettable: false, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
-            voicemessage: {properName: 'VoiceMessage', isSettable: false, isCallable: true, isVoiceMessage: true, isGroupIntercom: false},
-            voicemessageplaylist: {properName: 'VoiceMessagePlaylist', isSettable: false, isCallable: true, isVoiceMessage: true, isGroupIntercom: false}
+            mediastream: {properName: 'MediaStream', isSettable: false, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
+            devicekeys: {properName: 'DeviceKeys', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false}
         };
 
         var getFeatureType = function(featureElement) {
+            // Use the 'type' attribute
             var featureType = getAttributeValue(featureElement, "type");
             if (!isDefined(featureType)) {
-                featureType = featureElement.textContent;
+                // If there is no 'type' attribute, use the name of the child tag
+                var childElement = getChildElement(featureElement);
+                if (isDefined(childElement)) {
+                    featureType = childElement.tagName;
+                } else {
+                    // If there is no child tag, use the text of the element
+                    featureType = featureElement.textContent;
+                }
             }
             var lowercaseFeatureType = featureType.toLowerCase();
             if(featureList.hasOwnProperty(lowercaseFeatureType)) {
