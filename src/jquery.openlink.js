@@ -1783,73 +1783,7 @@
                 var callElements = getChildElements(callStatusElements[i]);
                 var callElementCount = callElements.length;
                 for (var j = 0; j < callElementCount; j++) {
-                    var callElement = callElements[j];
-
-                    var callerElement = getChildElementByElementName(callElement, 'caller');
-                    var callerNumberElement = getChildElementByElementName(callerElement, 'number');
-                    var callerNumber = getChildElementTextContent(callerElement, "number");
-                    var callerE164NumberValue = getAttributeValue(callerNumberElement, 'e164');
-                    var callerE164 = isString(callerE164NumberValue) ? callerE164NumberValue.split(",") : [];
-                    var callerPreferredNumber = callerE164.length === 1 ? callerE164[0] : callerNumber;
-
-                    var calledElement = getChildElementByElementName(callElement, 'called');
-                    var calledNumberElement = getChildElementByElementName(calledElement, 'number');
-                    var calledNumber = getChildElementTextContent(calledElement, "number");
-                    var calledDestination = getAttributeValue(calledNumberElement, "destination");
-                    var calledE164NumberValue = getAttributeValue(calledNumberElement, 'e164');
-                    var calledE164 = isString(calledE164NumberValue) ? calledE164NumberValue.split(",") : [];
-                    var calledPreferredNumber = isString(calledDestination) ? calledDestination : (calledE164.length === 1 ? calledE164[0] : calledNumber);
-
-                    var actionsElement = getChildElementByElementName(callElement, 'actions');
-                    var actionElements = getChildElements(actionsElement);
-                    var actionCount = actionElements.length;
-                    var direction = getChildElementTextContent(callElement, "direction");
-                    var actions = [];
-                    for (var k = 0; k < actionCount; k++) {
-                        actions.push(actionElements[k].tagName);
-                    }
-
-                    var featuresElement = getChildElementByElementName(callElement, 'features');
-                    var featuresElements = getChildElements(featuresElement);
-                    var features = [];
-                    for (k = 0; k < featuresElements.length; k++) {
-                        var feature = featuresElements[k];
-                        var featureType = getFeatureType(feature);
-                        features.push({
-                            id: getAttributeValue(feature, "id"),
-                            type: featureType.properName,
-                            isSettable: featureType.isSettable,
-                            isCallable: featureType.isCallable,
-                            isVoiceMessage: featureType.isVoiceMessage,
-                            isGroupIntercom: featureType.isGroupIntercom,
-                            label: getAttributeValue(feature, "label"),
-                            isEnabled: feature.textContent === "true"
-                        });
-                    }
-
-                    this.calls.push({
-                        id: getChildElementTextContent(callElement, "id"),
-                        site: getChildElementTextContent(callElement, "site"),
-                        profile: getChildElementTextContent(callElement, "profile"),
-                        interest: getChildElementTextContent(callElement, "interest"),
-                        changed: getChildElementTextContent(callElement, "changed"),
-                        state: getChildElementTextContent(callElement, "state"),
-                        direction: direction,
-                        isIncoming: direction === 'Incoming',
-                        isOutgoing: direction === 'Outgoing',
-                        callerNumber: callerNumber,
-                        callerE164: callerE164,
-                        callerPreferredNumber: callerPreferredNumber,
-                        callerName: getChildElementTextContent(callerElement, "name"),
-                        calledNumber: calledNumber,
-                        calledDestination: calledDestination,
-                        calledE164: calledE164,
-                        calledPreferredNumber: calledPreferredNumber,
-                        calledName: getChildElementTextContent(calledElement, "name"),
-                        duration: parseInt(getChildElementTextContent(callElement, "duration")),
-                        actions: actions,
-                        features: features
-                    });
+                    this.calls.push(parseCallStatus(callElements[j]));
                 }
             }
         }
@@ -1858,6 +1792,76 @@
         CallStatusMessage.prototype.constructor = CallStatusMessage;
         CallStatusMessage.prototype.getCalls = function () {
             return this.calls;
+        };
+
+        var parseCallStatus = function(callElement) {
+            var calls = [];
+
+            var callerElement = getChildElementByElementName(callElement, 'caller');
+            var callerNumberElement = getChildElementByElementName(callerElement, 'number');
+            var callerNumber = getChildElementTextContent(callerElement, "number");
+            var callerE164NumberValue = getAttributeValue(callerNumberElement, 'e164');
+            var callerE164 = isString(callerE164NumberValue) ? callerE164NumberValue.split(",") : [];
+            var callerPreferredNumber = callerE164.length === 1 ? callerE164[0] : callerNumber;
+
+            var calledElement = getChildElementByElementName(callElement, 'called');
+            var calledNumberElement = getChildElementByElementName(calledElement, 'number');
+            var calledNumber = getChildElementTextContent(calledElement, "number");
+            var calledDestination = getAttributeValue(calledNumberElement, "destination");
+            var calledE164NumberValue = getAttributeValue(calledNumberElement, 'e164');
+            var calledE164 = isString(calledE164NumberValue) ? calledE164NumberValue.split(",") : [];
+            var calledPreferredNumber = isString(calledDestination) ? calledDestination : (calledE164.length === 1 ? calledE164[0] : calledNumber);
+
+            var actionsElement = getChildElementByElementName(callElement, 'actions');
+            var actionElements = getChildElements(actionsElement);
+            var actionCount = actionElements.length;
+            var direction = getChildElementTextContent(callElement, "direction");
+            var actions = [];
+            for (var k = 0; k < actionCount; k++) {
+                actions.push(actionElements[k].tagName);
+            }
+
+            var featuresElement = getChildElementByElementName(callElement, 'features');
+            var featuresElements = getChildElements(featuresElement);
+            var features = [];
+            for (k = 0; k < featuresElements.length; k++) {
+                var feature = featuresElements[k];
+                var featureType = getFeatureType(feature);
+                features.push({
+                    id: getAttributeValue(feature, "id"),
+                    type: featureType.properName,
+                    isSettable: featureType.isSettable,
+                    isCallable: featureType.isCallable,
+                    isVoiceMessage: featureType.isVoiceMessage,
+                    isGroupIntercom: featureType.isGroupIntercom,
+                    label: getAttributeValue(feature, "label"),
+                    isEnabled: feature.textContent === "true"
+                });
+            }
+
+            return {
+                id: getChildElementTextContent(callElement, "id"),
+                site: getChildElementTextContent(callElement, "site"),
+                profile: getChildElementTextContent(callElement, "profile"),
+                interest: getChildElementTextContent(callElement, "interest"),
+                changed: getChildElementTextContent(callElement, "changed"),
+                state: getChildElementTextContent(callElement, "state"),
+                direction: direction,
+                isIncoming: direction === 'Incoming',
+                isOutgoing: direction === 'Outgoing',
+                callerNumber: callerNumber,
+                callerE164: callerE164,
+                callerPreferredNumber: callerPreferredNumber,
+                callerName: getChildElementTextContent(callerElement, "name"),
+                calledNumber: calledNumber,
+                calledDestination: calledDestination,
+                calledE164: calledE164,
+                calledPreferredNumber: calledPreferredNumber,
+                calledName: getChildElementTextContent(calledElement, "name"),
+                duration: parseInt(getChildElementTextContent(callElement, "duration")),
+                actions: actions,
+                features: features
+            };
         };
 
         var log = function (messageToLog) {
@@ -1978,7 +1982,8 @@
             UnsubscribeRequest: UnsubscribeRequest,
             SetPriorityRequest: SetPriorityRequest,
             ManageVoiceMessageRequest: ManageVoiceMessageRequest,
-            log: log
+            log: log,
+            parseCallStatus: parseCallStatus
         };
     }());
 }(jQuery));
