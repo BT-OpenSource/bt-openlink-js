@@ -497,9 +497,9 @@
             var eventElement = getChildElement(rootElement);
             var itemsElement = getChildElement(eventElement);
             var itemElement = getChildElement(itemsElement);
-            var callStatusElements = getChildElementsByElementName(itemElement, 'callstatus');
-            if (callStatusElements.length > 0) {
-                return new CallStatusMessage(xml, eventElement, to, from, id, type, callStatusElements);
+            var callStatusElement = getChildElementByElementName(itemElement, 'callstatus');
+            if (isDefined(callStatusElement)) {
+                return new CallStatusMessage(xml, eventElement, to, from, id, type, callStatusElement);
             }
             // If we've not already returned something, just return the generic IQ stanza
             return new Message(xml, to, from, id, type, eventElement);
@@ -1156,6 +1156,36 @@
         /*
          *********************************************
          *********************************************
+         * An IQ make-call result packet
+         *********************************************
+         *********************************************
+         */
+        function MakeCallResult(xml, packetTo, packetFrom, id, packetType, commandElement) {
+            this.xml = xml;
+            this.childElement = commandElement;
+            this.id = id;
+            this.type = packetType;
+            this.to = packetTo;
+            this.from = packetFrom;
+            var ioDataElement = getChildElementByElementName(commandElement, "iodata");
+            var outElement = getChildElement(ioDataElement);
+            var callStatusElement = getChildElementByElementName(outElement, 'callstatus');
+            if (isDefined(callStatusElement)) {
+                this.calls = parseCallStatusElement(callStatusElement);
+            } else {
+                this.calls = [];
+            }
+        }
+
+        MakeCallResult.prototype = new Iq();
+        MakeCallResult.prototype.constructor = GetFeaturesResult;
+        MakeCallResult.prototype.getCalls = function () {
+            return this.calls;
+        };
+
+        /*
+         *********************************************
+         *********************************************
          * An IQ get-call-history request packet
          *********************************************
          *********************************************
@@ -1770,94 +1800,95 @@
          *********************************************
          *********************************************
          */
-        function CallStatusMessage(xml, childElement, packetTo, packetFrom, id, type, callStatusElements) {
+        function CallStatusMessage(xml, childElement, packetTo, packetFrom, id, type, callStatusElement) {
             this.xml = xml;
             this.childElement = childElement;
             this.id = id;
             this.to = packetTo;
             this.from = packetFrom;
             this.type = type;
-            this.calls = [];
-            var elementCount = callStatusElements.length;
-            for (var i = 0; i < elementCount; i++) {
-                var callElements = getChildElements(callStatusElements[i]);
-                var callElementCount = callElements.length;
-                for (var j = 0; j < callElementCount; j++) {
-                    var callElement = callElements[j];
-
-                    var callerElement = getChildElementByElementName(callElement, 'caller');
-                    var callerNumberElement = getChildElementByElementName(callerElement, 'number');
-                    var callerNumber = getChildElementTextContent(callerElement, "number");
-                    var callerE164NumberValue = getAttributeValue(callerNumberElement, 'e164');
-                    var callerE164 = isString(callerE164NumberValue) ? callerE164NumberValue.split(",") : [];
-                    var callerPreferredNumber = callerE164.length === 1 ? callerE164[0] : callerNumber;
-
-                    var calledElement = getChildElementByElementName(callElement, 'called');
-                    var calledNumberElement = getChildElementByElementName(calledElement, 'number');
-                    var calledNumber = getChildElementTextContent(calledElement, "number");
-                    var calledDestination = getAttributeValue(calledNumberElement, "destination");
-                    var calledE164NumberValue = getAttributeValue(calledNumberElement, 'e164');
-                    var calledE164 = isString(calledE164NumberValue) ? calledE164NumberValue.split(",") : [];
-                    var calledPreferredNumber = isString(calledDestination) ? calledDestination : (calledE164.length === 1 ? calledE164[0] : calledNumber);
-
-                    var actionsElement = getChildElementByElementName(callElement, 'actions');
-                    var actionElements = getChildElements(actionsElement);
-                    var actionCount = actionElements.length;
-                    var direction = getChildElementTextContent(callElement, "direction");
-                    var actions = [];
-                    for (var k = 0; k < actionCount; k++) {
-                        actions.push(actionElements[k].tagName);
-                    }
-
-                    var featuresElement = getChildElementByElementName(callElement, 'features');
-                    var featuresElements = getChildElements(featuresElement);
-                    var features = [];
-                    for (k = 0; k < featuresElements.length; k++) {
-                        var feature = featuresElements[k];
-                        var featureType = getFeatureType(feature);
-                        features.push({
-                            id: getAttributeValue(feature, "id"),
-                            type: featureType.properName,
-                            isSettable: featureType.isSettable,
-                            isCallable: featureType.isCallable,
-                            isVoiceMessage: featureType.isVoiceMessage,
-                            isGroupIntercom: featureType.isGroupIntercom,
-                            label: getAttributeValue(feature, "label"),
-                            isEnabled: feature.textContent === "true"
-                        });
-                    }
-
-                    this.calls.push({
-                        id: getChildElementTextContent(callElement, "id"),
-                        site: getChildElementTextContent(callElement, "site"),
-                        profile: getChildElementTextContent(callElement, "profile"),
-                        interest: getChildElementTextContent(callElement, "interest"),
-                        changed: getChildElementTextContent(callElement, "changed"),
-                        state: getChildElementTextContent(callElement, "state"),
-                        direction: direction,
-                        isIncoming: direction === 'Incoming',
-                        isOutgoing: direction === 'Outgoing',
-                        callerNumber: callerNumber,
-                        callerE164: callerE164,
-                        callerPreferredNumber: callerPreferredNumber,
-                        callerName: getChildElementTextContent(callerElement, "name"),
-                        calledNumber: calledNumber,
-                        calledDestination: calledDestination,
-                        calledE164: calledE164,
-                        calledPreferredNumber: calledPreferredNumber,
-                        calledName: getChildElementTextContent(calledElement, "name"),
-                        duration: parseInt(getChildElementTextContent(callElement, "duration")),
-                        actions: actions,
-                        features: features
-                    });
-                }
-            }
+            this.calls = parseCallStatusElement(callStatusElement);
         }
 
         CallStatusMessage.prototype = new Message();
         CallStatusMessage.prototype.constructor = CallStatusMessage;
         CallStatusMessage.prototype.getCalls = function () {
             return this.calls;
+        };
+
+        var parseCallStatusElement = function(callStatusElement) {
+            var calls = [];
+            var callElements = getChildElements(callStatusElement);
+            var callElementCount = callElements.length;
+            for (var i = 0; i < callElementCount; i++) {
+                var callElement = callElements[i];
+                var callerElement = getChildElementByElementName(callElement, 'caller');
+                var callerNumberElement = getChildElementByElementName(callerElement, 'number');
+                var callerNumber = getChildElementTextContent(callerElement, "number");
+                var callerE164NumberValue = getAttributeValue(callerNumberElement, 'e164');
+                var callerE164 = isString(callerE164NumberValue) ? callerE164NumberValue.split(",") : [];
+                var callerPreferredNumber = callerE164.length === 1 ? callerE164[0] : callerNumber;
+
+                var calledElement = getChildElementByElementName(callElement, 'called');
+                var calledNumberElement = getChildElementByElementName(calledElement, 'number');
+                var calledNumber = getChildElementTextContent(calledElement, "number");
+                var calledDestination = getAttributeValue(calledNumberElement, "destination");
+                var calledE164NumberValue = getAttributeValue(calledNumberElement, 'e164');
+                var calledE164 = isString(calledE164NumberValue) ? calledE164NumberValue.split(",") : [];
+                var calledPreferredNumber = isString(calledDestination) ? calledDestination : (calledE164.length === 1 ? calledE164[0] : calledNumber);
+
+                var actionsElement = getChildElementByElementName(callElement, 'actions');
+                var actionElements = getChildElements(actionsElement);
+                var actionCount = actionElements.length;
+                var direction = getChildElementTextContent(callElement, "direction");
+                var actions = [];
+                for (var k = 0; k < actionCount; k++) {
+                    actions.push(actionElements[k].tagName);
+                }
+
+                var featuresElement = getChildElementByElementName(callElement, 'features');
+                var featuresElements = getChildElements(featuresElement);
+                var features = [];
+                for (k = 0; k < featuresElements.length; k++) {
+                    var feature = featuresElements[k];
+                    var featureType = getFeatureType(feature);
+                    features.push({
+                        id: getAttributeValue(feature, "id"),
+                        type: featureType.properName,
+                        isSettable: featureType.isSettable,
+                        isCallable: featureType.isCallable,
+                        isVoiceMessage: featureType.isVoiceMessage,
+                        isGroupIntercom: featureType.isGroupIntercom,
+                        label: getAttributeValue(feature, "label"),
+                        isEnabled: feature.textContent === "true"
+                    });
+                }
+
+                calls.push({
+                    id: getChildElementTextContent(callElement, "id"),
+                    site: getChildElementTextContent(callElement, "site"),
+                    profile: getChildElementTextContent(callElement, "profile"),
+                    interest: getChildElementTextContent(callElement, "interest"),
+                    changed: getChildElementTextContent(callElement, "changed"),
+                    state: getChildElementTextContent(callElement, "state"),
+                    direction: direction,
+                    isIncoming: direction === 'Incoming',
+                    isOutgoing: direction === 'Outgoing',
+                    callerNumber: callerNumber,
+                    callerE164: callerE164,
+                    callerPreferredNumber: callerPreferredNumber,
+                    callerName: getChildElementTextContent(callerElement, "name"),
+                    calledNumber: calledNumber,
+                    calledDestination: calledDestination,
+                    calledE164: calledE164,
+                    calledPreferredNumber: calledPreferredNumber,
+                    calledName: getChildElementTextContent(calledElement, "name"),
+                    duration: parseInt(getChildElementTextContent(callElement, "duration")),
+                    actions: actions,
+                    features: features
+                });
+            }
+            return calls;
         };
 
         var log = function (messageToLog) {
@@ -1898,6 +1929,10 @@
             namespace: manageVoiceMessageNamespace,
             type: 'result',
             constructor: ManageVoiceMessageResult
+        }, {
+            namespace: makeCallNamespace,
+            type: 'result',
+            constructor: MakeCallResult
         }];
 
         // Polyfill startsWith
