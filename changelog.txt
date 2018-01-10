@@ -1,12 +1,15 @@
 Openlink-JS SDK changelog
 =========================
 
-0.4.3 - TBC.
-============
+0.4.3 - 10 January 2018
+=======================
 * First release to GitHub
 * Add promise polyfill to the test harness to allow it to work on IE11
 * Avoid using <object>.constructor.name which isn't available on IE11
 * Add callerE164/calledE164, calledPreferredNumber/callerPreferredNumber, calledDestination to call status message
+* Recognise the Headset feature
+* Expose the profile label
+* Sort the profiles/interests/features on the test harness
 
 0.4.2 - 30 June 2017
 ====================
