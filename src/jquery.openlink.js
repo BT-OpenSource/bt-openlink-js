@@ -1924,6 +1924,7 @@
             voicebridge: {properName: 'VoiceBridge', isSettable: false, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
             privacy: {properName: 'Privacy', isSettable: true, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
             handset: {properName: 'Handset', isSettable: true, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
+            headset: {properName: 'Headset', isSettable: true, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},
             donotdisturb: {properName: 'DoNotDisturb', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
             callforward: {properName: 'CallForward', isSettable: true, isCallable: false, isVoiceMessage: false, isGroupIntercom: false},
             callback: {properName: 'CallBack', isSettable: true, isCallable: true, isVoiceMessage: false, isGroupIntercom: false},

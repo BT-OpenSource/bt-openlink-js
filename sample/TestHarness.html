@@ -1340,7 +1340,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
                             featureFound = true;
                         }
                         if (!featureFound) {
-                            featuresNotFound.push(feature.type);
+                            featuresNotFound.push(feature.label + ' (Type: ' + feature.type + ')');
                         }
                     }
                     if (featuresNotFound.length > 0) {
