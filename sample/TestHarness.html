@@ -1247,6 +1247,9 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
                         value: "",
                         text: ""
                     }));
+                    response.interests.sort(function (interest1, interest2) {
+                        return interest1.id.localeCompare(interest2.id)
+                    });
                     var interestCount = response.interests.length;
                     var defaultSelected = false;
                     for (var i = 0; i < interestCount; i++) {
@@ -1298,6 +1301,20 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
                 if ('result' === response.getType()) {
                     $(".requiresGetFeatures").prop('disabled', false);
                     var features = response.getFeatures();
+                    features.sort(function (feature1, feature2) {
+                        if (feature1.type !== feature2.type) {
+                            // Ensure DeviceKeys come last
+                            if ('DeviceKeys' === feature2.type) {
+                                return -1;
+                            } else {
+                                return feature1.type.localeCompare(feature2.type);
+                            }
+                        } else if (feature1.label !== feature2.label) {
+                            return feature1.label.localeCompare(feature2.label);
+                        } else {
+                            return feature1.id.localeCompare(feature2.id);
+                        }
+                    });
                     var groupIntercomsElement = $("#make-intercom-call-group");
                     var setFeatureIdElement = $("#set-feature-id");
                     var makeCallFeatureIdElement = $("#call-feature-id");
