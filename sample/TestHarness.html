@@ -1207,13 +1207,20 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
                         value: "",
                         text: ""
                     }));
+                    response.profiles.sort(function (profile1,profile2) {
+                        if (profile1.label !== profile2.label) {
+                            return profile1.label.localeCompare(profile2.label);
+                        } else {
+                            return profile1.id.localeCompare(profile2.id);
+                        }
+                    });
                     var profileCount = response.profiles.length;
                     for (var i = 0; i < profileCount; i++) {
                         var profile = response.profiles[i];
                         if (!profile.isVMS) {
                             var optionAttributes = {
-                                value: profile.id,
-                                text: profile.id
+                                text: profile.label + ' (' + profile.id + ')',
+                                value: profile.id
                             };
                             if (profile.default && typeof profile.site !== "undefined" && profile.site.default) {
                                 optionAttributes.selected = 'selected';

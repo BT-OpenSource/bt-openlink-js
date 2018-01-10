@@ -113,6 +113,7 @@
 
         var profile1 = profiles[0];
         equal(profile1.id, "UCTrader1-trader1@btsm11");
+        equal(profile1.label, "7001");
         equal(profile1.default, true);
         equal(profile1.online, true);
         equal(profile1.device,  "uta");
@@ -237,6 +238,7 @@
         var i = 0;
         var profile = profiles[i++];
         equal(profile.id, "UCTrader1-trader1@btsm11");
+        equal(profile.label, "7001");
         equal(profile.default, true);
         equal(profile.online, true);
         equal(profile.device,  "uta");
@@ -248,6 +250,7 @@
 
         profile = profiles[i++];
         equal(profile.id, "adastralfour_myprofile");
+        equal(profile.label, undefined);
         equal(profile.default, true);
         equal(profile.online, true);
         equal(profile.device,  "asterisk");

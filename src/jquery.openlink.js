@@ -705,6 +705,7 @@
             for (var i = 0; i < profileElementCount; i++) {
                 var profileElement = profileElements[i];
                 var profileId = getAttributeValue(profileElement, 'id');
+                var profileLabel = getAttributeValue(profileElement, 'label');
                 var isDefaultProfile = "true" === getAttributeValue(profileElement, 'default');
                 var isOnline = "true" === getAttributeValue(profileElement, 'online');
                 var siteElements = profileElement.getElementsByTagName("site");
@@ -723,6 +724,7 @@
                 }
                 this.profiles.push({
                     id: profileId,
+                    label: profileLabel,
                     default: isDefaultProfile,
                     online: isOnline,
                     site: siteHolder.site,
