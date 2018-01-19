@@ -1208,7 +1208,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
                         text: ""
                     }));
                     response.profiles.sort(function (profile1,profile2) {
-                        if (profile1.label !== profile2.label) {
+                        if (typeof profile1.label !== "undefined" && profile1.label !== profile2.label) {
                             return profile1.label.localeCompare(profile2.label);
                         } else {
                             return profile1.id.localeCompare(profile2.id);
