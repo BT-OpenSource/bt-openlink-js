@@ -499,7 +499,8 @@
             var itemElement = getChildElement(itemsElement);
             var callStatusElement = getChildElementByElementName(itemElement, 'callstatus');
             if (isDefined(callStatusElement)) {
-                return new CallStatusMessage(xml, eventElement, to, from, id, type, callStatusElement);
+                var nodeId = getAttributeValue(itemsElement, 'node');
+                return new CallStatusMessage(xml, eventElement, to, from, id, type, nodeId, callStatusElement);
             }
             // If we've not already returned something, just return the generic IQ stanza
             return new Message(xml, to, from, id, type, eventElement);
@@ -1802,13 +1803,14 @@
          *********************************************
          *********************************************
          */
-        function CallStatusMessage(xml, childElement, packetTo, packetFrom, id, type, callStatusElement) {
+        function CallStatusMessage(xml, childElement, packetTo, packetFrom, id, type, nodeId, callStatusElement) {
             this.xml = xml;
             this.childElement = childElement;
             this.id = id;
             this.to = packetTo;
             this.from = packetFrom;
             this.type = type;
+            this.nodeId = nodeId;
             this.calls = parseCallStatusElement(callStatusElement);
         }
 
@@ -1816,6 +1818,9 @@
         CallStatusMessage.prototype.constructor = CallStatusMessage;
         CallStatusMessage.prototype.getCalls = function () {
             return this.calls;
+        };
+        CallStatusMessage.prototype.getNode = function () {
+            return this.nodeId;
         };
 
         var parseCallStatusElement = function(callStatusElement) {

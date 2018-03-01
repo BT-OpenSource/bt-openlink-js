@@ -136,6 +136,7 @@
         equal(stanza.getId(), 'sip:6003@uta.bt.com-DirectDial-1trader1@btsm11__trader1@btp072883__taHRN');
         equal(stanza.getStanzaType(), 'message');
         equal(stanza.getType(), undefined);
+        equal(stanza.getNode(), 'sip:6003@uta.bt.com-DirectDial-1trader1@btsm11');
         equal(stanza.getChildElement().nodeName, 'event');
 
         var calls = stanza.getCalls();
