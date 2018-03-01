@@ -64,63 +64,50 @@
 
     module('call-status event');
     var callStatusEvent =
-        "<message to='trader1@btp072883' from='pubsub.btp072883' id='sip:6003@uta.bt.com-DirectDial-1trader1@btsm11__trader1@btp072883__taHRN'>\n" +
-        "  <event xmlns='http://jabber.org/protocol/pubsub#event'>\n" +
-        "    <items node=\"sip:6003@uta.bt.com-DirectDial-1trader1@btsm11\">\n" +
-        "      <item id=\"L0pDQw6G1Q6AJWo\">\n" +
-        "        <callstatus xmlns=\"http://xmpp.org/protocol/openlink:01:00:00#call-status\" busy=\"false\">\n" +
-        "          <call>\n" +
-        "            <id>1499444280-sip:6003@uta.bt.com-DirectDial-1trader1@btsm11</id>\n" +
-        "            <site type=\"BTSESSIONMANAGER\">itrader-dev-sm-5</site>\n" +
-        "            <profile>UCTrader1-trader1@btsm11</profile>\n" +
-        "            <eventTimestamps>\n" +
-        "              <switch>1448896015923</switch>\n" +
-        "              <received>1448896015398</received>\n" +
-        "              <published>1448896015405</published>\n" +
-        "            </eventTimestamps>\n" +
-        "            <interest>sip:6003@uta.bt.com-DirectDial-1trader1@btsm11</interest>\n" +
-        "            <changed>State</changed>\n" +
-        "            <state>CallDelivered</state>\n" +
-        "            <direction>Incoming</direction>\n" +
-        "            <caller>\n" +
-        "              <number>6005</number>\n" +
-        "              <name>6005</name>\n" +
-        "            </caller>\n" +
-        "            <called>\n" +
-        "              <number>6003</number>\n" +
-        "              <name>6003/1</name>\n" +
-        "            </called>\n" +
-        "            <duration>0</duration>\n" +
-        "            <actions>\n" +
-        "              <AnswerCall/>\n" +
-        "            </actions>\n" +
-        "            <features>\n" +
-        "              <feature id=\"hs_1\" type=\"HANDSET\" label=\"Handset 1\">true</feature>\n" +
-        "              <feature id=\"hs_2\" type=\"HANDSET\" label=\"Handset 2\">false</feature>\n" +
-        "              <feature id=\"priv_1\" type=\"PRIVACY\" label=\"Privacy\">false</feature>\n" +
-        "              <feature id=\"unknown-id\" type=\"unknown-type\" label=\"unknown-label\">false</feature>\n" +
-        "              <feature id=\"MK1234\">VoiceMessage</feature>\n" +
-        "              <feature id=\"MK1235\" type='VoiceMessage' label='test-message'>something else</feature>\n" +
-        "              <feature id=\"NetrixButton_trader1\" type=\"DEVICEKEYS\" label=\"NetrixButton\">\n" +
-        "                <devicekeys xmlns=\"http://xmpp.org/protocol/openlink:01:00:00/features#device-keys\">\n" +
-        "                  <key>key_1:1:7</key>\n" +
-        "                </devicekeys>\n" +
-        "              </feature>" +
-        "              <feature id=\"voicerecorder_1\">" +
-        "                <voicerecorder xmlns=\"http://xmpp.org/protocol/openlink:01:00:00/features#voice-recorder\">" +
-        "                  <recnumber>001</recnumber>\n" +
-        "                  <recport>3</recport>\n" +
-        "                  <recchan>28</recchan>" +
-        "                  <rectype>?</rectype>\n" +
-        "                  </voicerecorder>\n" +
-        "                </feature>\n" +
-        "            </features>\n" +
-        "          </call>\n" +
-        "        </callstatus>\n" +
-        "      </item>\n" +
-        "    </items>\n" +
-        "  </event>\n" +
-        "</message>\n";
+        "<message from='pubsub.win2008' to='803292039@win2008' id='D511516803292039@its2__803292039@win2008__beued'>\n" +
+        "   <event xmlns='http://jabber.org/protocol/pubsub#event'>\n" +
+        "       <items node='D511516803292039@its2'>\n" +
+        "          <item id='W0Ewxx8KG0F9Rjh'>\n" +
+        "               <callstatus xmlns='http://xmpp.org/protocol/openlink:01:00:00#call-status' busy='true'>\n" +
+        "                   <call><id>ITS#536#10000005371#D511516803292039@its2</id>\n" +
+        "                       <site type='ITS'>ExampleSite</site>\n" +
+        "                       <profile devicenum='513'>803292039@its2</profile>\n" +
+        "                       <interest>D511516803292039@its2</interest>\n" +
+        "                       <changed>State</changed>\n" +
+        "                       <state>CallConferenced</state>\n" +
+        "                       <direction>Outgoing</direction>\n" +
+        "                       <caller><number>511516</number><name>511516 Richard Cucks</name></caller>\n" +
+        "                       <called><number>14120</number><name>14120</name></called>\n" +
+        "                       <duration>5906</duration>\n" +
+        "                       <actions><ClearConnection/><ClearCall/><SendDigit/><ClearConference/><ConnectSpeaker/></actions>\n" +
+        "                       <features>\n" +
+        "                           <feature id='priv_1'>false</feature>\n" +
+        "                           <feature id='hs_1'>true</feature><feature id='hs_2'>false</feature>\n" +
+        "                           <feature id='voicerecorder_1'>\n" +
+        "                               <voicerecorder xmlns='http://xmpp.org/protocol/openlink:01:00:00/features#voice-recorder'>\n" +
+        "                                   <recnumber>006</recnumber>\n" +
+        "                                   <recport>1</recport>\n" +
+        "                                   <recchan>1</recchan>\n" +
+        "                                   <rectype>T</rectype>\n" +
+        "                               </voicerecorder>\n" +
+        "                           </feature>\n" +
+        "                           <feature id='Netrix_803292039'>\n" +
+        "                               <devicekeys xmlns='http://xmpp.org/protocol/openlink:01:00:00/features#device-keys'>\n" +
+        "                                   <key>key_1:9:7</key>\n" +
+        "                                   <key>key_1:8:7</key>\n" +
+        "                                   <key>key_1:13:7</key>\n" +
+        "                               </devicekeys></feature>\n" +
+        "                       </features>\n" +
+        "                       <participants>\n" +
+        "                           <participant jid='803292039@win2008' type='Active' direction='Outgoing' timestamp='Fri Jan 27 16:58:11 GMT 2017' duration='5906'/>\n" +
+        "                           <participant number='14120' type='Active' category='CONF' direction='Outgoing' timestamp='Fri Jan 27 16:58:19 GMT 2017' duration='0'/>\n" +
+        "                       </participants>\n" +
+        "                   </call>\n" +
+        "               </callstatus>\n" +
+        "           </item>\n" +
+        "        </items>\n" +
+        "   </event>\n" +
+        "</message>";
 
     test('Parsing a call-status message will not change the XML', function () {
         var stanza = new $.openlink.stanza(callStatusEvent);
@@ -131,50 +118,118 @@
     test('A call-status message can be parsed', function () {
         var stanza = new $.openlink.stanza(callStatusEvent);
 
-        equal(stanza.getTo(), 'trader1@btp072883');
-        equal(stanza.getFrom(), 'pubsub.btp072883');
-        equal(stanza.getId(), 'sip:6003@uta.bt.com-DirectDial-1trader1@btsm11__trader1@btp072883__taHRN');
+        equal(stanza.getTo(), '803292039@win2008');
+        equal(stanza.getFrom(), 'pubsub.win2008');
+        equal(stanza.getId(), 'D511516803292039@its2__803292039@win2008__beued');
         equal(stanza.getStanzaType(), 'message');
         equal(stanza.getType(), undefined);
-        equal(stanza.getNode(), 'sip:6003@uta.bt.com-DirectDial-1trader1@btsm11');
+        equal(stanza.getNode(), 'D511516803292039@its2');
         equal(stanza.getChildElement().nodeName, 'event');
 
         var calls = stanza.getCalls();
         equal(calls.length, 1);
 
-        propEqual(calls[0], {
-            id: '1499444280-sip:6003@uta.bt.com-DirectDial-1trader1@btsm11',
-            site: 'itrader-dev-sm-5',
-            profile: 'UCTrader1-trader1@btsm11',
-            interest: 'sip:6003@uta.bt.com-DirectDial-1trader1@btsm11',
-            changed: 'State',
-            state: 'CallDelivered',
-            direction: 'Incoming',
-            isIncoming: true,
-            isOutgoing: false,
-            callerNumber: '6005',
-            callerName: '6005',
-            callerE164: [],
-            callerPreferredNumber: '6005',
-            calledNumber: "6003",
-            calledDestination: undefined,
-            calledE164: [],
-            calledPreferredNumber: '6003',
-            calledName: "6003/1",
-            duration: 0,
-            actions: ['AnswerCall'],
-            features: [
-                {id: 'hs_1', type: 'Handset', label: 'Handset 1', isEnabled: true, isCallable: true, isSettable: true, isVoiceMessage: false, isGroupIntercom: false},
-                {id: 'hs_2', type: 'Handset', label: 'Handset 2', isEnabled: false, isCallable: true, isSettable: true, isVoiceMessage: false, isGroupIntercom: false},
-                {id: 'priv_1', type: 'Privacy', label: 'Privacy', isEnabled: false, isCallable: true, isSettable: true, isVoiceMessage: false, isGroupIntercom: false},
-                {id: 'unknown-id', type: 'unknown-type', label: 'unknown-label', isEnabled: false, isCallable: false, isSettable: false, isVoiceMessage: false, isGroupIntercom: false},
-                {id: 'MK1234', type: 'VoiceMessage', label: undefined, isEnabled: false, isCallable: true, isSettable: false, isVoiceMessage: true, isGroupIntercom: false},
-                {id: 'MK1235', type: 'VoiceMessage', label: 'test-message', isEnabled: false, isCallable: true, isSettable: false, isVoiceMessage: true, isGroupIntercom: false},
-                {id: 'NetrixButton_trader1', type: 'DeviceKeys', label: 'NetrixButton', isEnabled: false, isCallable: false, isSettable: true, isVoiceMessage: false, isGroupIntercom: false},
-                {id: 'voicerecorder_1', type: 'VoiceRecorder', label: undefined, isEnabled: false, isCallable: false, isSettable: false, isVoiceMessage: false, isGroupIntercom: false}
-                ]
-
-        });
+        propEqual(calls[0],
+            {
+                "actions": [
+                    "ClearConnection",
+                    "ClearCall",
+                    "SendDigit",
+                    "ClearConference",
+                    "ConnectSpeaker"
+                ],
+                "calledDestination": undefined,
+                "calledE164": [],
+                "calledName": "14120",
+                "calledNumber": "14120",
+                "calledPreferredNumber": "14120",
+                "callerE164": [],
+                "callerName": "511516 Richard Cucks",
+                "callerNumber": "511516",
+                "callerPreferredNumber": "511516",
+                "changed": "State",
+                "direction": "Outgoing",
+                "duration": 5906,
+                "features": [
+                    {
+                        "id": "priv_1",
+                        "isCallable": false,
+                        "isEnabled": false,
+                        "isGroupIntercom": false,
+                        "isSettable": false,
+                        "isVoiceMessage": false,
+                        "label": undefined,
+                        "type": "false"
+                    },
+                    {
+                        "id": "hs_1",
+                        "isCallable": false,
+                        "isEnabled": true,
+                        "isGroupIntercom": false,
+                        "isSettable": false,
+                        "isVoiceMessage": false,
+                        "label": undefined,
+                        "type": "true"
+                    },
+                    {
+                        "id": "hs_2",
+                        "isCallable": false,
+                        "isEnabled": false,
+                        "isGroupIntercom": false,
+                        "isSettable": false,
+                        "isVoiceMessage": false,
+                        "label": undefined,
+                        "type": "false"
+                    },
+                    {
+                        "id": "voicerecorder_1",
+                        "isCallable": false,
+                        "isEnabled": false,
+                        "isGroupIntercom": false,
+                        "isSettable": false,
+                        "isVoiceMessage": false,
+                        "label": undefined,
+                        "type": "VoiceRecorder"
+                    },
+                    {
+                        "id": "Netrix_803292039",
+                        "isCallable": false,
+                        "isEnabled": false,
+                        "isGroupIntercom": false,
+                        "isSettable": true,
+                        "isVoiceMessage": false,
+                        "label": undefined,
+                        "type": "DeviceKeys"
+                    }
+                ],
+                "participants": [
+                    {
+                        "category": undefined,
+                        "direction": "Outgoing",
+                        "duration": "5906",
+                        "jid": "803292039@win2008",
+                        "number": undefined,
+                        "timestamp": "Fri Jan 27 16:58:11 GMT 2017",
+                        "type": "Active"
+                    },
+                    {
+                        "category": "CONF",
+                        "direction": "Outgoing",
+                        "duration": "0",
+                        "jid": undefined,
+                        "number": "14120",
+                        "timestamp": "Fri Jan 27 16:58:19 GMT 2017",
+                        "type": "Active"
+                    }
+                ],
+                "id": "ITS#536#10000005371#D511516803292039@its2",
+                "interest": "D511516803292039@its2",
+                "isIncoming": false,
+                "isOutgoing": true,
+                "profile": "803292039@its2",
+                "site": "ExampleSite",
+                "state": "CallConferenced"
+            });
     });
 
     module('call-status number formatting');

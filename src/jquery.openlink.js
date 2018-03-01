@@ -1871,6 +1871,22 @@
                     });
                 }
 
+                var participantsElement = getChildElementByElementName(callElement, 'participants');
+                var participantsElements = getChildElements(participantsElement);
+                var participants = [];
+                for (k = 0; k < participantsElements.length; k++) {
+                    var participant = participantsElements[k];
+                    participants.push({
+                        jid: getAttributeValue(participant, "jid"),
+                        type: getAttributeValue(participant, "type"),
+                        number: getAttributeValue(participant, "number"),
+                        category: getAttributeValue(participant, "category"),
+                        direction: getAttributeValue(participant, "direction"),
+                        timestamp: getAttributeValue(participant, "timestamp"),
+                        duration: getAttributeValue(participant, "duration")
+                    });
+                }
+
                 calls.push({
                     id: getChildElementTextContent(callElement, "id"),
                     site: getChildElementTextContent(callElement, "site"),
@@ -1892,6 +1908,7 @@
                     calledName: getChildElementTextContent(calledElement, "name"),
                     duration: parseInt(getChildElementTextContent(callElement, "duration")),
                     actions: actions,
+                    participants: participants,
                     features: features
                 });
             }
