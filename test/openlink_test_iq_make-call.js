@@ -220,6 +220,17 @@
             "actions": [
                 "AnswerCall"
             ],
+            "participants": [
+                {
+                    "category": undefined,
+                    "direction": "Incoming",
+                    "duration": "60000",
+                    "jid": "test-user@test-domain",
+                    "number": undefined,
+                    "timestamp": "Mon Oct 09 08:07:00 UTC 2017",
+                    "type": "Active"
+                }
+            ],
             "features": [
                 { "id": "hs_1", "isCallable": true, "isEnabled": false, "isGroupIntercom": false, "isSettable": true, "isVoiceMessage": false, "label": "Handset 1", "type": "Handset" },
                 { "id": "hs_2", "isCallable": true, "isEnabled": false, "isGroupIntercom": false, "isSettable": true, "isVoiceMessage": false, "label": "Handset 2", "type": "Handset" },

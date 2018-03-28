@@ -499,7 +499,8 @@
             var itemElement = getChildElement(itemsElement);
             var callStatusElement = getChildElementByElementName(itemElement, 'callstatus');
             if (isDefined(callStatusElement)) {
-                return new CallStatusMessage(xml, eventElement, to, from, id, type, callStatusElement);
+                var nodeId = getAttributeValue(itemsElement, 'node');
+                return new CallStatusMessage(xml, eventElement, to, from, id, type, nodeId, callStatusElement);
             }
             // If we've not already returned something, just return the generic IQ stanza
             return new Message(xml, to, from, id, type, eventElement);
@@ -1810,13 +1811,14 @@
          *********************************************
          *********************************************
          */
-        function CallStatusMessage(xml, childElement, packetTo, packetFrom, id, type, callStatusElement) {
+        function CallStatusMessage(xml, childElement, packetTo, packetFrom, id, type, nodeId, callStatusElement) {
             this.xml = xml;
             this.childElement = childElement;
             this.id = id;
             this.to = packetTo;
             this.from = packetFrom;
             this.type = type;
+            this.nodeId = nodeId;
             this.calls = parseCallStatusElement(callStatusElement);
         }
 
@@ -1824,6 +1826,9 @@
         CallStatusMessage.prototype.constructor = CallStatusMessage;
         CallStatusMessage.prototype.getCalls = function () {
             return this.calls;
+        };
+        CallStatusMessage.prototype.getNode = function () {
+            return this.nodeId;
         };
 
         var parseCallStatusElement = function(callStatusElement) {
@@ -1874,6 +1879,22 @@
                     });
                 }
 
+                var participantsElement = getChildElementByElementName(callElement, 'participants');
+                var participantsElements = getChildElements(participantsElement);
+                var participants = [];
+                for (k = 0; k < participantsElements.length; k++) {
+                    var participant = participantsElements[k];
+                    participants.push({
+                        jid: getAttributeValue(participant, "jid"),
+                        type: getAttributeValue(participant, "type"),
+                        number: getAttributeValue(participant, "number"),
+                        category: getAttributeValue(participant, "category"),
+                        direction: getAttributeValue(participant, "direction"),
+                        timestamp: getAttributeValue(participant, "timestamp"),
+                        duration: getAttributeValue(participant, "duration")
+                    });
+                }
+
                 calls.push({
                     id: getChildElementTextContent(callElement, "id"),
                     site: getChildElementTextContent(callElement, "site"),
@@ -1895,6 +1916,7 @@
                     calledName: getChildElementTextContent(calledElement, "name"),
                     duration: parseInt(getChildElementTextContent(callElement, "duration")),
                     actions: actions,
+                    participants: participants,
                     features: features
                 });
             }
