@@ -1084,6 +1084,7 @@
             this.type = 'set';
             this.userJid = $.openlink.getUserJid();
             this.destination = null;
+            this.profile = null;
             this.interest = null;
             this.features = [];
             this.orginatorReferences = [];
@@ -1092,6 +1093,10 @@
 
         MakeCallRequest.prototype = new Iq();
         MakeCallRequest.prototype.constructor = MakeCallRequest;
+        MakeCallRequest.prototype.onProfile = function (profileId) {
+            this.profile = profileId;
+            return this;
+        };
         MakeCallRequest.prototype.onInterest = function (interestId) {
             this.interest = interestId;
             return this;
@@ -1132,6 +1137,9 @@
                 '<iodata xmlns="urn:xmpp:tmp:io-data" type="input">' +
                 '<in>' +
                 '<jid>' + xmlEscape(this.userJid) + '</jid>';
+            if (this.profile !== null) {
+                xml += '<profile>' + xmlEscape(this.profile) + '</profile>';
+            }
             if (this.interest !== null) {
                 xml += '<interest>' + xmlEscape(this.interest) + '</interest>';
             }

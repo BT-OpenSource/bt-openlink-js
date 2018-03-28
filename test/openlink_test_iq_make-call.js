@@ -51,6 +51,13 @@
         equal(makeCallRequest.toXml(), expected);
     });
 
+    test('MakeCallRequest will build a stanza on a profile', function () {
+        var makeCallRequest = new $.openlink.MakeCallRequest()
+            .onProfile("test-profile-id");
+        var expected = '<iq type="set" id="' + makeCallRequest.getId() + '" to="' + $.openlink.getOpenlinkJid() + '"><command xmlns="http://jabber.org/protocol/commands" node="http://xmpp.org/protocol/openlink:01:00:00#make-call" action="execute"><iodata xmlns="urn:xmpp:tmp:io-data" type="input"><in><jid>test-user@test-domain</jid><profile>test-profile-id</profile></in></iodata></command></iq>';
+        equal(makeCallRequest.toXml(), expected);
+    });
+
     test('MakeCallRequest will build a stanza on an interest', function () {
         var makeCallRequest = new $.openlink.MakeCallRequest()
             .onInterest("test-interest-id");
