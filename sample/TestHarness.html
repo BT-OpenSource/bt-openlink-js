@@ -1094,9 +1094,14 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
 
     var callFeatures;
     $("#make-call").click(function () {
-        var makeCallRequest = new $.openlink.MakeCallRequest()
-            .onInterest($("#interest").val())
-            .forUser($.trim($("#user").val()));
+        var makeCallRequest = new $.openlink.MakeCallRequest().forUser($.trim($("#user").val()));
+        var interest = $("#interest").val();
+        var profile = $("#profile").val();
+        if (interest !== '' && interest !== 'get-interests required') {
+            makeCallRequest = makeCallRequest.onInterest(interest);
+        } else if (profile !== '' && profile !== 'get-profiles required') {
+            makeCallRequest = makeCallRequest.onProfile(profile);
+        }
         var destination = $.trim($("#make-call-destination").val());
         if (destination !== '') {
             makeCallRequest = makeCallRequest.toDestination(destination);
