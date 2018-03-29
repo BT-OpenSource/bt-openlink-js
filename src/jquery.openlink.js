@@ -278,6 +278,14 @@
             }
         };
 
+        var getIntegerAttributeValue = function (element, attributeName) {
+            var stringValue = getAttributeValue(element,  attributeName);
+            var intValue = parseInt(stringValue);
+            if (!isNaN(intValue)) {
+                return intValue;
+            }
+        };
+
         var getFirstChildElement = function (element) {
             var allChildren = getChildElements(element);
             if (allChildren.length > 0) {
@@ -800,7 +808,8 @@
                     type: getAttributeValue(interestElement, "type"),
                     label: getAttributeValue(interestElement, "label"),
                     value: getAttributeValue(interestElement, "value"),
-                    default: "true" === getAttributeValue(interestElement, "default")
+                    default: "true" === getAttributeValue(interestElement, "default"),
+                    maxCalls: getIntegerAttributeValue(interestElement, "maxCalls")
                 });
             }
         }
@@ -1363,7 +1372,7 @@
         }
 
         GetCallHistoryResult.prototype = new Iq();
-        GetCallHistoryResult.prototype.constructor = GetInterestsResult;
+        GetCallHistoryResult.prototype.constructor = GetCallHistoryResult;
         GetCallHistoryResult.prototype.getCalls = function () {
             return this.calls;
         };

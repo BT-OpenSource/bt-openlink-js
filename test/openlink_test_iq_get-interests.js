@@ -57,7 +57,7 @@
         "       <iodata xmlns='urn:xmpp:tmp:io-data' type='output'>\n" +
         "           <out>\n" +
         "               <interests xmlns='http://xmpp.org/protocol/openlink:01:00:00/interests'>\n" +
-        "                   <interest id='sip:1000@uta.bt.com-InternalConference-1trader1@btsm11' type='InternalConference' label='IC' value='trader1'>\n" +
+        "                   <interest id='sip:1000@uta.bt.com-InternalConference-1trader1@btsm11' type='InternalConference' label='IC' value='trader1' maxCalls='3'>\n" +
         "                       <callstatus xmlns='http://xmpp.org/protocol/openlink:01:00:00#call-status' busy='false'>\n" +
         "                       <call>\n" +
         "                       <id>1162919591-sip:6002@uta.bt.com-DirectDial-1trader1@btsm11</id>\n" +
@@ -122,35 +122,40 @@
             type: 'InternalConference',
             label: 'IC',
             value: 'trader1',
-            default: false
+            default: false,
+            maxCalls: 3
         });
         propEqual(interests[1], {
             id: 'sip:6001@uta.bt.com-DirectDial-1trader1@btsm11',
             type: 'DirectoryNumber',
             label: '6001/1',
             value: 'trader1',
-            default: true
+            default: true,
+            maxCalls: undefined
         });
         propEqual(interests[2], {
             id: 'sip:6001@uta.bt.com-DirectDial-2trader1@btsm11',
             type: 'DirectoryNumber',
             label: '6001/2',
             value: 'trader1',
-            default: true
+            default: true,
+            maxCalls: undefined
         });
         propEqual(interests[3], {
             id: 'sip:6002@uta.bt.com-DirectDial-1trader1@btsm11',
             type: 'DirectoryNumber',
             label: '6002/1',
             value: 'trader1',
-            default: false
+            default: false,
+            maxCalls: undefined
         });
         propEqual(interests[4], {
             id: 'sip:6002@uta.bt.com-DirectDial-2trader1@btsm11',
             type: 'DirectoryNumber',
             label: '6002/2',
             value: 'trader1',
-            default: false
+            default: false,
+            maxCalls: undefined
         });
 
     });
