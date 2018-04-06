@@ -1,9 +1,14 @@
 Openlink-JS SDK changelog
 =========================
 
-0.4.4-SNAPSHOT - tbc.
-=====================
-
+0.4.4 - 6 April 2018
+====================
+* Ensure the test harness is more resilient when receiving events with missing data
+* Expose the 'node' for a pubsub message
+* Expose the participations in a call
+* Allow a users profile to be included in a make-call request
+* Allow the test harness to send a 'blind' make-call
+* Expose the maxCalls attribute in get-interests results
 
 0.4.3 - 10 January 2018
 =======================
