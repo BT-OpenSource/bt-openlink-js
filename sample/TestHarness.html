@@ -292,8 +292,8 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
 <div id="loginDialog" title="Login">
     <table>
         <tr>
-            <td><label for="server">Server:</label></td>
-            <td><input id="server" type="text" size="20"/></td>
+            <td><label for="wsServer">WS server:</label></td>
+            <td><input id="wsServer" type="text" size="20"/></td>
         </tr>
         <tr>
             <td>Auth:</td>
@@ -307,8 +307,8 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
             </td>
         </tr>
         <tr>
-            <td><label for="otpPort">OTP Port:</label></td>
-            <td><input id="otpPort" type="text" size="20" disabled="disabled"/></td>
+            <td><label for="otpServer">OTP server:</label></td>
+            <td><input id="otpServer" type="text" size="20" disabled="disabled"/></td>
         </tr>
         <tr>
             <td><label for="username">Username:</label></td>
@@ -482,8 +482,8 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
 
 <script type="text/javascript">
 
-    var serverFieldSelector = $("#server");
-    var otpPortFieldSelector = $("#otpPort");
+    var wsServerFieldSelector = $("#wsServer");
+    var otpServerFieldSelector = $("#otpServer");
     var resourceFieldSelector = $("#resource");
     var alertDialogSelector = $("#alertDialog");
     var alertDialogTextSelector = $("#alertDialogText");
@@ -508,20 +508,20 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     $('input[name=auth]').on('change', function () {
         if ($(this).val() === 'supplied') {
             $('#username,#password').prop('disabled', false);
-            $('#otpPort').prop('disabled', true);
+            $('#otpServer').prop('disabled', true);
         } else {
             $('#username,#password').prop('disabled', true);
-            $('#otpPort').prop('disabled', false);
+            $('#otpServer').prop('disabled', false);
         }
     });
 
     var savedDetails = Cookies.getJSON('TestHarness');
     if (typeof savedDetails !== "undefined") {
-        if ('server' in savedDetails) {
-            serverFieldSelector.val(savedDetails.server);
+        if ('wsServer' in savedDetails) {
+            wsServerFieldSelector.val(savedDetails.wsServer);
         }
-        if ('otpPort' in savedDetails) {
-            otpPortFieldSelector.val(savedDetails.otpPort);
+        if ('otpServer' in savedDetails) {
+            otpServerFieldSelector.val(savedDetails.otpServer);
         }
         if ('username' in savedDetails) {
             $("#username").val(savedDetails.username);
@@ -549,28 +549,29 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
         return decodeURIComponent(results[2].replace(/\+/g, " "));
     };
 
-    if (serverFieldSelector.val() === '') {
-        var host = getParameterByName('host');
-        if (typeof host !== 'string') {
-            if (window.location.hostname) {
-                host = window.location.hostname;
-            } else {
-                host = 'localhost';
-            }
+    var host = getParameterByName('host');
+    if (typeof host !== 'string') {
+        if (window.location.hostname) {
+            host = window.location.hostname;
+        } else {
+            host = 'localhost';
         }
+    }
+
+    if (wsServerFieldSelector.val() === '') {
         var wsPort = getParameterByName('wsPort');
         if (typeof wsPort !== 'string') {
             wsPort = '7070';
         }
-        serverFieldSelector.val("ws://" + host + ":" + wsPort);
+        wsServerFieldSelector.val("ws://" + host + ":" + wsPort);
     }
 
-    if (otpPortFieldSelector.val() === '') {
+    if (otpServerFieldSelector.val() === '') {
         var otpPort = getParameterByName('otpPort');
         if (typeof otpPort !== 'string') {
             otpPort = '7070';
         }
-        otpPortFieldSelector.val(otpPort);
+        otpServerFieldSelector.val("http://" + host + ":" + otpPort);
     }
 
     if (resourceFieldSelector.val() === '') {
@@ -579,24 +580,31 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
 
     var login = function () {
 
-        var server = serverFieldSelector.val();
-        if (!server.startsWith("ws://") && !server.startsWith("wss://")) {
-            alertDialogTextSelector.html('The only supported protocols are ws:// (for Openfire 3.6.4) or ws:// and wss:// (for Openfire 4)');
-            alertDialogSelector.dialog('option', 'title', 'Invalid protocol');
+        var wsServer = wsServerFieldSelector.val();
+        if (!wsServer.startsWith("ws://") && !wsServer.startsWith("wss://")) {
+            alertDialogTextSelector.html('The only supported WebSocket protocols are ws:// or wss://');
+            alertDialogSelector.dialog('option', 'title', 'Invalid WS protocol');
             alertDialogSelector.dialog("open");
             return;
         }
 
         var authType = $('input[name=auth]:checked').val();
 
-        loginDialogSelector.dialog("close");
-        $("#pleaseWaitDialog").dialog("open");
-
         if (authType === 'supplied') {
+            loginDialogSelector.dialog("close");
+            $("#pleaseWaitDialog").dialog("open");
             connect($("#username").val(), $("#password").val());
         } else {
-            var otpPort = otpPortFieldSelector.val();
-            getOTPCredentials(otpPort, authType);
+            var otpServer = otpServerFieldSelector.val();
+            if (!otpServer.startsWith("http://") && !otpServer.startsWith("https://")) {
+                alertDialogTextSelector.html('The only supported protocols for OTP are http:// or https://');
+                alertDialogSelector.dialog('option', 'title', 'Invalid http protocol');
+                alertDialogSelector.dialog("open");
+                return;
+            }
+            loginDialogSelector.dialog("close");
+            $("#pleaseWaitDialog").dialog("open");
+            getOTPCredentials(otpServer, authType);
         }
 
     };
@@ -608,20 +616,16 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
         origin = "file://";
     }
 
-    var getOTPCredentials = function (otpPort, otpType) {
+    var getOTPCredentials = function (otpServer, otpType) {
 
-        if (otpPort.length === 0) {
-            alertDialogTextSelector.html('Please specify the OTP port');
+        if (otpServer.length === 0) {
+            alertDialogTextSelector.html('Please specify the OTP server');
             alertDialogSelector.dialog('option', 'title', 'Invalid server details');
             alertDialogSelector.dialog("open");
             return;
         }
-        // First, get the OTP address - switch out ws(s) with http(s)
-        var urlParser = document.createElement('a');
-        urlParser.href = serverFieldSelector.val();
-        var normalisedServer = (urlParser.protocol === 'wss:' ? 'https:' : 'http:') + "//" + urlParser.host.split(":")[0];
         // And generate a unique (to avoid caching) URL to fetch an OTP
-        var otpAddress = normalisedServer + ":" + otpPort + "/otp/" + otpType + "?" + new Date().getTime();
+        var otpAddress = otpServer + "/otp/" + otpType + "?" + new Date().getTime();
 
         var xmlHttpRequest = new XMLHttpRequest();
         xmlHttpRequest.open("GET", otpAddress);
@@ -669,7 +673,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
             message: onMessage
         };
 
-        $.openlink.connect(serverFieldSelector.val(), settings);
+        $.openlink.connect(wsServerFieldSelector.val(), settings);
     };
 
     loginDialogSelector.dialog({
@@ -906,8 +910,8 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     var onOpened = function (response) {
         console.log("Connected to server", response);
         Cookies.set('TestHarness', {
-            server: serverFieldSelector.val(),
-            otpPort: otpPortFieldSelector.val(),
+            wsServer: wsServerFieldSelector.val(),
+            otpServer: otpServerFieldSelector.val(),
             username: $("#username").val(),
             password: $("#password").val(),
             resource: resourceFieldSelector.val(),
