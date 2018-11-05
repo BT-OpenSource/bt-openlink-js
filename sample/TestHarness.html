@@ -366,7 +366,9 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
 </div>
 
 <div id="xmlDialog" title="XML details">
-    <pre id="xml"></pre>
+    <div width="100%">
+        <pre id="xml"></pre>
+    </div>
 </div>
 
 <div id="getCallHistoryDialog" title="Get Call History">
@@ -828,7 +830,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     $("#xmlDialog").dialog({
         autoOpen: false,
         modal: true,
-        width: 'auto',
+        width: $(window).width() * 0.9,
         height: 'auto',
         buttons: [{
             text: "OK",
