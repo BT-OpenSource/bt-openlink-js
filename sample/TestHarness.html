@@ -472,7 +472,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     <input type="button" style="width:auto" id="mvm-Playback" value="Playback"/>
     <input type="button" style="width:auto" id="mvm-Edit" value="Edit"/>
     <input type="button" style="width:auto" id="mvm-Query" value="Query"/>
-    <input type="button" style="width:auto" id="mvm-Delete" value="Delete"/>
+    <input type="button" style="width:auto" id="mvm-Archive" value="Archive"/>
 </div>
 
 <div id="mvm-label-dialog" title="Voice message label">
@@ -1822,7 +1822,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     };
 
     var onCheckboxClick = function () {
-        var buttonsActiveWithOneMessage = $("#mvm-Query, #mvm-Edit, #mvm-Playback, #mvm-Delete");
+        var buttonsActiveWithOneMessage = $("#mvm-Query, #mvm-Edit, #mvm-Playback, #mvm-Archive");
         var numberOfRowsChecked = $('.voiceMessageCheckbox:checked').size();
         switch (numberOfRowsChecked) {
             // NB. Can always Record
@@ -1833,7 +1833,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
                 buttonsActiveWithOneMessage.prop('disabled', false);
                 break;
             default:
-                $("#mvm-Query, #mvm-Delete").prop('disabled', false);
+                $("#mvm-Query, #mvm-Archive").prop('disabled', false);
                 $("#mvm-Edit, #mvm-Playback").prop('disabled', true);
                 break;
         }
@@ -1944,8 +1944,8 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
         mvmLabelDialogSelector.dialog("open");
     });
 
-    $("#mvm-Delete").click(function () {
-        var mvm = new $.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Delete');
+    $("#mvm-Archive").click(function () {
+        var mvm = new $.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Archive');
         $('.voiceMessageCheckbox:checked').each(function () {
             mvm = mvm.withFeature($(this).val());
         });
@@ -1953,7 +1953,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
         $.openlink.send(
             mvm,
             function (response) {
-                checkForErrorOrUnexpectedResponse(response, "manage voice message delete");
+                checkForErrorOrUnexpectedResponse(response, "manage voice message archive");
                 if (response.isResult()) {
                     refreshVoiceMessages();
                 }
