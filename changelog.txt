@@ -1,7 +1,7 @@
 Openlink-JS SDK changelog
 =========================
 
-0.4.6 - 5 November 2018 - Test harness change only
+0.4.6 - 6 November 2018 - Test harness change only
 =======================
 * Use "Archive" instead of "Delete" for removing voice messages
 * Update to jQuery 3.3.1 / jQuery UI 1.12.1
