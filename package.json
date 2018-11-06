@@ -1,6 +1,6 @@
 {
   "name": "bt-openlink-js",
-  "version": "0.4.6-SNAPSHOT",
+  "version": "0.4.6",
   "title": "BT Openlink JavaScript SDK",
   "description": "A JavaScript wrapper to the BT Collaboration Server Openlink API.",
   "homepage": "https://www.bt.com/unifiedtrading",

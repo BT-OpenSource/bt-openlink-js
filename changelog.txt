@@ -1,6 +1,16 @@
 Openlink-JS SDK changelog
 =========================
 
+0.4.6 - 5 November 2018 - Test harness change only
+=======================
+* Use "Archive" instead of "Delete" for removing voice messages
+* Update to jQuery 3.3.1 / jQuery UI 1.12.1
+* Update to current compile dependencies
+
+0.4.5 - 25 May 2018 - Test harness change only
+===================
+* Make the OTP a full address rather than just a port
+
 0.4.4 - 6 April 2018
 ====================
 * Ensure the test harness is more resilient when receiving events with missing data
