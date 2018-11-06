@@ -290,39 +290,41 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
 </div>
 
 <div id="loginDialog" title="Login">
-    <table>
-        <tr>
-            <td><label for="wsServer">WS server:</label></td>
-            <td><input id="wsServer" type="text" size="20"/></td>
-        </tr>
-        <tr>
-            <td>Auth:</td>
-            <td>
-                <input type="radio" name="auth" value="supplied" checked="checked" id="auth-supplied"
-                       style="width:auto"><label for="auth-supplied">Supplied</label>
-                <input type="radio" name="auth" value="iwa" id="auth-iwa" style="width:auto"><label
-                    for="auth-iwa">IWA</label>
-                <input type="radio" name="auth" value="sm" id="auth-sm" style="width:auto"><label
-                    for="auth-sm">SM</label>
-            </td>
-        </tr>
-        <tr>
-            <td><label for="otpServer">OTP server:</label></td>
-            <td><input id="otpServer" type="text" size="20" disabled="disabled"/></td>
-        </tr>
-        <tr>
-            <td><label for="username">Username:</label></td>
-            <td><input id="username" type="text" size="10"/></td>
-        </tr>
-        <tr>
-            <td><label for="password">Password:</label></td>
-            <td><input id="password" type="password" size="10"/></td>
-        </tr>
-        <tr>
-            <td><label for="resource">Resource:</label></td>
-            <td><input id="resource" type="text" size="10"/></td>
-        </tr>
-    </table>
+    <form>
+        <table>
+            <tr>
+                <td><label for="wsServer">WS server:</label></td>
+                <td><input id="wsServer" type="text" size="20"/></td>
+            </tr>
+            <tr>
+                <td>Auth:</td>
+                <td>
+                    <input type="radio" name="auth" value="supplied" checked="checked" id="auth-supplied"
+                           style="width:auto"><label for="auth-supplied">Supplied</label>
+                    <input type="radio" name="auth" value="iwa" id="auth-iwa" style="width:auto"><label
+                        for="auth-iwa">IWA</label>
+                    <input type="radio" name="auth" value="sm" id="auth-sm" style="width:auto"><label
+                        for="auth-sm">SM</label>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="otpServer">OTP server:</label></td>
+                <td><input id="otpServer" type="text" size="20" disabled="disabled"/></td>
+            </tr>
+            <tr>
+                <td><label for="username">Username:</label></td>
+                <td><input id="username" type="text" autocomplete="username" size="10"/></td>
+            </tr>
+            <tr>
+                <td><label for="password">Password:</label></td>
+                <td><input id="password" type="password" autocomplete="current-password" size="10"/></td>
+            </tr>
+            <tr>
+                <td><label for="resource">Resource:</label></td>
+                <td><input id="resource" type="text" size="10"/></td>
+            </tr>
+        </table>
+    </form>
 </div>
 
 <div id="pleaseWaitDialog" title="Please wait ...">
