@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
     <!--
 	  BT Openlink JavaScript API Test Harness
@@ -329,7 +329,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
 
 <div id="pleaseWaitDialog" title="Please wait ...">
     Please wait a moment ...
-    <div style="text-align: center; margin-bottom: 40px;"><img src="images/ajax-loader-white-on-black.gif"
+    <div style="text-align: center; margin-bottom: 40px;"><img src="images/ajax-loader-white-on-black.gif" alt="Spinner"
                                                                style="width:32px; height:32px"></div>
 </div>
 
@@ -368,7 +368,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
 </div>
 
 <div id="xmlDialog" title="XML details">
-    <div width="100%">
+    <div>
         <pre id="xml"></pre>
     </div>
 </div>
@@ -1827,7 +1827,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
 
     var onCheckboxClick = function () {
         var buttonsActiveWithOneMessage = $("#mvm-Query, #mvm-Edit, #mvm-Playback, #mvm-Archive");
-        var numberOfRowsChecked = $('.voiceMessageCheckbox:checked').size();
+        var numberOfRowsChecked = $('.voiceMessageCheckbox:checked').length;
         switch (numberOfRowsChecked) {
             // NB. Can always Record
             case 0:
