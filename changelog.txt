@@ -1,6 +1,10 @@
 Openlink-JS SDK changelog
 =========================
 
+0.4.7 - 10 January 2019 - Test harness change only
+=======================
+* Fix bug that could prevent get-features command from working correctly
+
 0.4.6 - 6 November 2018 - Test harness change only
 =======================
 * Use "Archive" instead of "Delete" for removing voice messages
