@@ -3,6 +3,12 @@
  * https://www.bt.com/unifiedtrading
  * Copyright (c) 2017 BT
  */
+var bt;
+if(typeof jQuery === 'undefined') {
+    bt = {};
+} else {
+    bt = jQuery;
+}
  (function ($) {
     "use strict";
     $.openlink = (function () {
@@ -2058,4 +2064,4 @@
             log: log
         };
     }());
-}(jQuery));
+}(bt));
