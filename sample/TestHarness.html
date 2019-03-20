@@ -501,11 +501,11 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     };
 
     // Replace the plugin functions with custom ones
-    $.openlink.getOpenlinkJid = function () {
+    bt.openlink.getOpenlinkJid = function () {
         return $("#openlink").val();
     };
 
-    $.openlink.getPubsubJid = function () {
+    bt.openlink.getPubsubJid = function () {
         return $("#pubsub").val();
     };
 
@@ -677,7 +677,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
             message: onMessage
         };
 
-        $.openlink.connect(wsServerFieldSelector.val(), settings);
+        bt.openlink.connect(wsServerFieldSelector.val(), settings);
     };
 
     loginDialogSelector.dialog({
@@ -723,7 +723,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
         var callEvents = calls[selectedCallId];
         if (typeof callEvents === 'object') {
             var lastEvent = callEvents[callEvents.length - 1];
-            var requestAction = new $.openlink.RequestActionRequest(lastEvent.interest, $(this).val(), selectedCallId);
+            var requestAction = new bt.openlink.RequestActionRequest(lastEvent.interest, $(this).val(), selectedCallId);
             var value1 = $.trim($('#RequestActionValue1').val());
             if (value1 !== '') {
                 requestAction = requestAction.withValue1(value1);
@@ -734,7 +734,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
             }
             requestAction = requestAction.setSupervised('StartVoiceDrop' === $(this).val() && $('#supervisedVoiceDrop').is(':checked'));
             appendSendToLog(requestAction.toXml());
-            $.openlink.send(
+            bt.openlink.send(
                 requestAction,
                 function (response) {
                     checkForErrorOrUnexpectedResponse(response, "request action");
@@ -756,19 +756,19 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
             return;
         }
         // Step 1; get an extension number
-        var mvm = new $.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Playback').withFeature(messageId);
+        var mvm = new bt.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Playback').withFeature(messageId);
         appendSendToLog(mvm.toXml());
-        $.openlink.send(
+        bt.openlink.send(
             mvm,
             function (response) {
                 checkForErrorOrUnexpectedResponse(response, "manage voice message playback");
                 if (response.isResult()) {
-                    var requestAction = new $.openlink.RequestActionRequest(lastEvent.interest, "StartVoiceDrop", selectedCallId)
+                    var requestAction = new bt.openlink.RequestActionRequest(lastEvent.interest, "StartVoiceDrop", selectedCallId)
                         .setSupervised($('#supervisedVoiceDrop').is(':checked'))
                         .withValue1(messageId)
                         .withValue2(response.getFeatures()[0].extension);
                     appendSendToLog(requestAction.toXml());
-                    $.openlink.send(
+                    bt.openlink.send(
                         requestAction,
                         function (response) {
                             checkForErrorOrUnexpectedResponse(response, "voice drop");
@@ -923,7 +923,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
         });
         //noinspection JSUnresolvedVariable
         var loggedInUser = response.loggedInUser;
-        $.openlink.log(loggedInUser + " logged in via the test harness");
+        bt.openlink.log(loggedInUser + " logged in via the test harness");
         var user = loggedInUser.substring(0, loggedInUser.indexOf('/'));
         $("#openlink").val(response.openlink);
         //noinspection JSUnresolvedVariable
@@ -1097,12 +1097,12 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     var logoutMessage = "User logged out";
 
     $("#logout").click(function () {
-        $.openlink.disconnect(logoutCode, logoutMessage);
+        bt.openlink.disconnect(logoutCode, logoutMessage);
     });
 
     var callFeatures;
     $("#make-call").click(function () {
-        var makeCallRequest = new $.openlink.MakeCallRequest().forUser($.trim($("#user").val()));
+        var makeCallRequest = new bt.openlink.MakeCallRequest().forUser($.trim($("#user").val()));
         var interest = $("#interest").val();
         var profile = $("#profile").val();
         if (interest !== '' && interest !== 'get-interests required') {
@@ -1129,7 +1129,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
         }
         console.log("Sending stanza", makeCallRequest);
         appendSendToLog(makeCallRequest.toXml());
-        $.openlink.send(
+        bt.openlink.send(
             makeCallRequest,
             function (response) {
                 checkForErrorOrUnexpectedResponse(response, "make-call stanza");
@@ -1138,7 +1138,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     });
 
     $("#set-feature").click(function () {
-        var setFeatureRequest = new $.openlink.SetFeatureRequest($("#profile").val(), $.trim($("#set-feature-id").val()));
+        var setFeatureRequest = new bt.openlink.SetFeatureRequest($("#profile").val(), $.trim($("#set-feature-id").val()));
         var value1 = $.trim($("#set-feature-value1").val());
         if (value1 !== '') {
             setFeatureRequest = setFeatureRequest.withValue1(value1);
@@ -1153,7 +1153,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
         }
         console.log("Sending stanza", setFeatureRequest);
         appendSendToLog(setFeatureRequest.toXml());
-        $.openlink.send(
+        bt.openlink.send(
             setFeatureRequest,
             function (response) {
                 checkForErrorOrUnexpectedResponse(response, "set feature");
@@ -1207,9 +1207,9 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     };
 
     $("#get-profiles").click(function () {
-        var getProfilesRequest = new $.openlink.GetProfilesRequest().forUser($.trim($("#user").val()));
+        var getProfilesRequest = new bt.openlink.GetProfilesRequest().forUser($.trim($("#user").val()));
         appendSendToLog(getProfilesRequest.toXml());
-        $.openlink.send(
+        bt.openlink.send(
             getProfilesRequest,
             function (response) {
                 checkForErrorOrUnexpectedResponse(response, 'retrieve profiles');
@@ -1247,9 +1247,9 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     });
 
     $("#get-interests").click(function () {
-        var getInterestsRequest = new $.openlink.GetInterestsRequest($("#profile").val());
+        var getInterestsRequest = new bt.openlink.GetInterestsRequest($("#profile").val());
         appendSendToLog(getInterestsRequest.toXml());
-        $.openlink.send(
+        bt.openlink.send(
             getInterestsRequest,
             function (response) {
                 checkForErrorOrUnexpectedResponse(response, 'retrieve interests');
@@ -1283,9 +1283,9 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     });
 
     $("#get-profile").click(function () {
-        var getProfileRequest = new $.openlink.GetProfileRequest($("#profile").val());
+        var getProfileRequest = new bt.openlink.GetProfileRequest($("#profile").val());
         appendSendToLog(getProfileRequest.toXml());
-        $.openlink.send(
+        bt.openlink.send(
             getProfileRequest,
             function (response) {
                 checkForErrorOrUnexpectedResponse(response, "retrieve profile");
@@ -1294,9 +1294,9 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     });
 
     $("#get-interest").click(function () {
-        var getInterestRequest = new $.openlink.GetInterestRequest($("#interest").val());
+        var getInterestRequest = new bt.openlink.GetInterestRequest($("#interest").val());
         appendSendToLog(getInterestRequest.toXml());
-        $.openlink.send(
+        bt.openlink.send(
             getInterestRequest,
             function (response) {
                 checkForErrorOrUnexpectedResponse(response, "retrieve interest");
@@ -1305,9 +1305,9 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     });
 
     $("#get-features").click(function () {
-        var getFeaturesRequest = new $.openlink.GetFeaturesRequest($("#profile").val());
+        var getFeaturesRequest = new bt.openlink.GetFeaturesRequest($("#profile").val());
         appendSendToLog(getFeaturesRequest.toXml());
-        $.openlink.send(
+        bt.openlink.send(
             getFeaturesRequest,
             function (response) {
                 checkForErrorOrUnexpectedResponse(response, "get features");
@@ -1391,9 +1391,9 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     });
 
     $("#query-features").click(function () {
-        var getFeaturesRequest = new $.openlink.QueryFeaturesRequest($("#profile").val());
+        var getFeaturesRequest = new bt.openlink.QueryFeaturesRequest($("#profile").val());
         appendSendToLog(getFeaturesRequest.toXml());
-        $.openlink.send(
+        bt.openlink.send(
             getFeaturesRequest,
             function (response) {
                 checkForErrorOrUnexpectedResponse(response, "query features");
@@ -1402,9 +1402,9 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     });
 
     $("#subscribe").click(function () {
-        var subscribeRequest = new $.openlink.SubscribeRequest($("#interest").val());
+        var subscribeRequest = new bt.openlink.SubscribeRequest($("#interest").val());
         appendSendToLog(subscribeRequest.toXml());
-        $.openlink.send(
+        bt.openlink.send(
             subscribeRequest,
             function (response) {
                 checkForErrorOrUnexpectedResponse(response, "subscribe");
@@ -1413,9 +1413,9 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     });
 
     $("#unsubscribe").click(function () {
-        var unsubscribeRequest = new $.openlink.UnsubscribeRequest($("#interest").val());
+        var unsubscribeRequest = new bt.openlink.UnsubscribeRequest($("#interest").val());
         appendSendToLog(unsubscribeRequest.toXml());
-        $.openlink.send(
+        bt.openlink.send(
             unsubscribeRequest,
             function (response) {
                 checkForErrorOrUnexpectedResponse(response, "unsubscribe");
@@ -1473,7 +1473,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     });
 
     var getCallHistory = function () {
-        var getCallHistoryRequest = new $.openlink.GetCallHistoryRequest()
+        var getCallHistoryRequest = new bt.openlink.GetCallHistoryRequest()
             .forUser($.trim($("#get-call-history-user").val()));
         var fromCaller = $.trim($("#get-call-history-from-caller").val());
         if (fromCaller !== '') {
@@ -1514,7 +1514,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
 
         console.log("Sending get-call-history request", getCallHistoryRequest);
         appendSendToLog(getCallHistoryRequest.toXml());
-        $.openlink.send(
+        bt.openlink.send(
             getCallHistoryRequest,
             function (response) {
                 checkForErrorOrUnexpectedResponse(response, "call history");
@@ -1590,7 +1590,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     });
 
     $("#make-intercom-call").click(function () {
-        var makeIntercomCallRequest = new $.openlink.MakeIntercomCallRequest($("#profile").val());
+        var makeIntercomCallRequest = new bt.openlink.MakeIntercomCallRequest($("#profile").val());
         var intercomUser = $.trim($("#make-intercom-call-user").val());
         if (intercomUser !== '') {
             makeIntercomCallRequest = makeIntercomCallRequest.toUser(intercomUser);
@@ -1611,7 +1611,7 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
 
         console.log("Sending make-intercom-call request", makeIntercomCallRequest);
         appendSendToLog(makeIntercomCallRequest.toXml());
-        $.openlink.send(
+        bt.openlink.send(
             makeIntercomCallRequest,
             function (response) {
                 checkForErrorOrUnexpectedResponse(response, "make-intercom-call stanza");
@@ -1628,10 +1628,10 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
             text: "OK",
             click: function () {
                 $(this).dialog("close");
-                var stanza = $.openlink.stanza($("#messageToSend").val());
+                var stanza = bt.openlink.stanza($("#messageToSend").val());
                 console.log("Sending stanza", stanza);
                 appendSendToLog(stanza.toXml());
-                $.openlink.send(
+                bt.openlink.send(
                     stanza,
                     function (response) {
                         checkForErrorOrUnexpectedResponse(response, "send custom stanza");
@@ -1652,10 +1652,10 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     });
 
     $("#set-priority").click(function () {
-        var setPriorityRequest = new $.openlink.SetPriorityRequest($("#priority").val());
+        var setPriorityRequest = new bt.openlink.SetPriorityRequest($("#priority").val());
         console.log("Sending SetPriorityRequest", setPriorityRequest);
         appendSendToLog(setPriorityRequest.toXml());
-        $.openlink.send(setPriorityRequest);
+        bt.openlink.send(setPriorityRequest);
     });
 
     $("#add-call-feature").click(function () {
@@ -1718,9 +1718,9 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
 
     var refreshVoiceMessages = function () {
         // Send a get-features request
-        var getFeaturesRequest = new $.openlink.GetFeaturesRequest($("#profile").val());
+        var getFeaturesRequest = new bt.openlink.GetFeaturesRequest($("#profile").val());
         appendSendToLog(getFeaturesRequest.toXml());
-        $.openlink.send(
+        bt.openlink.send(
             getFeaturesRequest,
             function (response) {
                 checkForErrorOrUnexpectedResponse(response, "get features");
@@ -1856,23 +1856,23 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
             text: "OK",
             click: function () {
                 $(this).dialog("close");
-                var mvm = new $.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Record')
+                var mvm = new bt.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Record')
                     .withLabel($("#voice-message-label").val());
                 appendSendToLog(mvm.toXml());
-                $.openlink.send(
+                bt.openlink.send(
                     mvm,
                     function (response) {
                         checkForErrorOrUnexpectedResponse(response, "manage voice message record");
                         if (response.isResult() && typeof response.getFeatures === 'function') {
                             var feature = response.getFeatures()[0];
                             if (typeof feature === 'object' && typeof feature.extension === 'string') {
-                                var makeCallRequest = new $.openlink.MakeCallRequest()
+                                var makeCallRequest = new bt.openlink.MakeCallRequest()
                                     .onInterest($("#interest").val())
                                     .forUser($.trim($("#user").val()))
                                     .toDestination(feature.extension)
                                     .withVoiceMessageFeature(feature.id);
                                 appendSendToLog(makeCallRequest.toXml());
-                                $.openlink.send(
+                                bt.openlink.send(
                                     makeCallRequest,
                                     function (response) {
                                         checkForErrorOrUnexpectedResponse(response, "make call for voice message recording");
@@ -1892,23 +1892,23 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     });
 
     $("#mvm-Playback").click(function () {
-        var mvm = new $.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Playback')
+        var mvm = new bt.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Playback')
             .withFeature($('.voiceMessageCheckbox:checked').val());
         appendSendToLog(mvm.toXml());
-        $.openlink.send(
+        bt.openlink.send(
             mvm,
             function (response) {
                 checkForErrorOrUnexpectedResponse(response, "manage voice message playback");
                 if (response.isResult() && typeof response.getFeatures === 'function') {
                     var feature = response.getFeatures()[0];
                     if (typeof feature === 'object' && typeof feature.extension === 'string') {
-                        var makeCallRequest = new $.openlink.MakeCallRequest()
+                        var makeCallRequest = new bt.openlink.MakeCallRequest()
                             .onInterest($("#interest").val())
                             .forUser($.trim($("#user").val()))
                             .toDestination(feature.extension)
                             .withVoiceMessageFeature(feature.id);
                         appendSendToLog(makeCallRequest.toXml());
-                        $.openlink.send(
+                        bt.openlink.send(
                             makeCallRequest,
                             function (response) {
                                 checkForErrorOrUnexpectedResponse(response, "make call for voice message playback");
@@ -1926,11 +1926,11 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
             text: "OK",
             click: function () {
                 $(this).dialog("close");
-                var mvm = new $.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Edit')
+                var mvm = new bt.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Edit')
                     .withFeature($('.voiceMessageCheckbox:checked').val())
                     .withLabel($("#voice-message-label").val());
                 appendSendToLog(mvm.toXml());
-                $.openlink.send(
+                bt.openlink.send(
                     mvm,
                     function (response) {
                         checkForErrorOrUnexpectedResponse(response, "manage voice message edit");
@@ -1949,12 +1949,12 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     });
 
     $("#mvm-Archive").click(function () {
-        var mvm = new $.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Archive');
+        var mvm = new bt.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Archive');
         $('.voiceMessageCheckbox:checked').each(function () {
             mvm = mvm.withFeature($(this).val());
         });
         appendSendToLog(mvm.toXml());
-        $.openlink.send(
+        bt.openlink.send(
             mvm,
             function (response) {
                 checkForErrorOrUnexpectedResponse(response, "manage voice message archive");
@@ -1966,12 +1966,12 @@ Value 2: <input type="text" id="RequestActionValue2" placeholder="value2">
     });
 
     $("#mvm-Query").click(function () {
-        var mvm = new $.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Query');
+        var mvm = new bt.openlink.ManageVoiceMessageRequest($("#profile").val(), 'Query');
         $('.voiceMessageCheckbox:checked').each(function () {
             mvm = mvm.withFeature($(this).val());
         });
         appendSendToLog(mvm.toXml());
-        $.openlink.send(
+        bt.openlink.send(
             mvm,
             function (response) {
                 checkForErrorOrUnexpectedResponse(response, "manage voice message query");
